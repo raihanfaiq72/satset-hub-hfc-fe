@@ -2,39 +2,52 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Services\ApiService;
 
-use Illuminate\Support\Facades\Http;
+class DashboardController extends Controller
+{
+    protected $api;
 
-class DashboardController extends Controller{
-
-    public function index(){
-        $token = session('api_token');
-
-        if (!$token) {
-            return redirect('/login')->withErrors(['error' => 'Silakan login terlebih dahulu.']);
-        }
-
-        $response = Http::withToken($token)->get('http://localhost:8000/api/banners');
-
-        if ($response->successful()) {
-            $dashboardData = $response->json()['data'] ?? []; 
-
-            return view('dashboard.index', [
-                'stats' => $dashboardData,
-                'user' => session('user_data') 
-            ]);
-        }
-
-        if ($response->status() == 401) {
-            session()->forget(['api_token', 'user_data']);
-            return redirect('/login')->withErrors(['error' => 'Sesi anda telah berakhir.']);
-        }
-
-        return view('dashboard')->withErrors(['error' => 'Gagal mengambil data dari server.']);
+    public function __construct(ApiService $api)
+    {
+        $this->api = $api;
     }
 
-    public function getBanners(){
-        //
+    public function index()
+    {
+        try {
+            $banners = $this->api->getBanners();
+            $services = $this->api->getServices();
+
+            usort($banners, function($a, $b) {
+                return $a['urutan'] <=> $b['urutan'];
+            });
+
+            $serviceParents = array_values(array_filter($services, function($item) {
+                return $item['idParent'] == 0 && $item['release_status'] === 'published';
+            }));
+
+            $allChildren = [];
+            foreach ($services as $service) {
+                if (!empty($service['children'])) {
+                    foreach ($service['children'] as $child) {
+                        if ($child['release_status'] === 'published') {
+                            $allChildren[] = $child;
+                        }
+                    }
+                }
+            }
+
+
+            return view('dashboard.index', [
+                'banners' => $banners,
+                'user' => session('user_data'),
+                'serviceParents' => $serviceParents,
+                'allChildren' => $allChildren
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors(['error' => $e->getMessage()]);
+        }
     }
 }

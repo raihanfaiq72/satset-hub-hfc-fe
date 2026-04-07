@@ -47,11 +47,7 @@
             </p>
         </div>
 
-        @if ($errors->any())
-            <div class="mb-4 rounded-xl px-4 py-3 text-sm font-semibold bg-red-100 text-red-700">
-                {{ $errors->first() }}
-            </div>
-        @endif
+        @include('components.errorAlert')
 
         <form class="space-y-6 animate-fade-in" action="{{ route('login.post') }}" method="POST">
             @csrf

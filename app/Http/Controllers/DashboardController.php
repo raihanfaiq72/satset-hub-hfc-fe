@@ -38,7 +38,6 @@ class DashboardController extends Controller
                 }
             }
 
-
             return view('dashboard.index', [
                 'banners' => $banners,
                 'user' => session('user_data'),
@@ -47,7 +46,7 @@ class DashboardController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            return redirect('/login')->withErrors(['error' => $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 }

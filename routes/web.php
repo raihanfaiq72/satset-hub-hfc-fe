@@ -15,4 +15,5 @@ Route::get('/logout',[App\Http\Controllers\AuthController::class,'logout'])->nam
 
 Route::middleware(['api.auth'])->group(function () {
     Route::get('/dashboard',[App\Http\Controllers\DashboardController::class,'index'])->name('dashboard');
+    Route::get('/services',[App\Http\Controllers\ServiceController::class,'index'])->name('services');
 });

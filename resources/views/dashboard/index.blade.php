@@ -1,156 +1,15 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('components.head')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SatSet - Dashboard Mockup</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'satset-green': '#2d7a6e',
-                        'satset-dark': '#246359'
-                    },
-                    animation: {
-                        'fade-in': 'fadeIn 0.7s ease-out',
-                        'slide-in': 'slideIn 0.5s ease-out',
-                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-                    },
-                    keyframes: {
-                        fadeIn: {
-                            '0%': {
-                                opacity: '0',
-                                transform: 'scale(0.95)'
-                            },
-                            '100%': {
-                                opacity: '1',
-                                transform: 'scale(1)'
-                            }
-                        },
-                        slideIn: {
-                            '0%': {
-                                opacity: '0',
-                                transform: 'translateX(-20px)'
-                            },
-                            '100%': {
-                                opacity: '1',
-                                transform: 'translateX(0)'
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-    </script>
-    <style>
-        /* Firefox compatibility fixes */
-        @-moz-document url-prefix() {
-
-            input[type="text"],
-            input[type="email"] {
-                -moz-appearance: none !important;
-                appearance: none !important;
-                color: #000000 !important;
-                background-color: #ffffff !important;
-            }
-        }
-
-        /* General input fixes */
-        input {
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            color: #000000 !important;
-            background-color: #ffffff !important;
-        }
-
-        /* Carousel styling */
-        .carousel-container {
-            scroll-snap-type: x mandatory;
-            scroll-behavior: smooth;
-        }
-
-        .carousel-item {
-            scroll-snap-align: start;
-            flex-shrink: 0;
-        }
-
-        /* Loading spinner */
-        .spinner {
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
-        /* Card hover effects */
-        .service-card {
-            transition: all 0.3s ease;
-        }
-
-        .service-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Icon button hover */
-        .icon-btn {
-            transition: all 0.2s ease;
-        }
-
-        .icon-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(45, 122, 110, 0.2);
-        }
-
-        /* Bottom navigation */
-        .bottom-nav {
-            backdrop-filter: blur(10px);
-            background-color: rgba(255, 255, 255, 0.95);
-        }
-
-        /* Activity item animation */
-        .activity-item {
-            animation: slideIn 0.5s ease-out backwards;
-        }
-
-        .activity-item:nth-child(1) {
-            animation-delay: 0.1s;
-        }
-
-        .activity-item:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-
-        .activity-item:nth-child(3) {
-            animation-delay: 0.3s;
-        }
-
-    </style>
-</head>
+@section('content')
 
 <body class="bg-gray-50 min-h-screen">
-    <!-- Main Container -->
     <div class="flex min-h-screen flex-col">
-        <!-- Main Content -->
         <main class="flex-1 pb-24">
             <div class="px-5 pt-6 pb-4 animate-fade-in">
                 <h2 class="text-2xl font-bold text-gray-800">Halo, {{ session('user_data.username') }}</h2>
                 <p class="text-sm text-gray-500">Selamat datang kembali di SatSet</p>
             </div>
+             @include('components.errorAlert')
 
             <div class="px-5 pb-6">
                 <div class="carousel-container flex gap-4 overflow-x-auto snap-x">
@@ -177,7 +36,6 @@
                 </div>
             </div>
 
-            <!-- Quick Services Grid -->
             <div class="px-5 pb-6">
                 <section>
                     <div class="flex items-center justify-between mb-4">
@@ -197,10 +55,8 @@
                 </section>
             </div>
 
-            <!-- Main Services Grid -->
             <div class="px-5 pb-6">
                 <div class="grid grid-cols-2 gap-4">
-                    <!-- Service 1 -->
                     @foreach($allChildren as $ac)
                     <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
                         <div class="w-full h-36 bg-gray-50 flex items-center justify-center p-8">
@@ -295,101 +151,150 @@
             </div>
         </main>
 
-        <!-- Bottom Navigation -->
-        <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-gray-200 bg-white/95">
-            <div class="flex justify-around items-center py-2">
-                <!-- Home -->
-                <button class="flex flex-col items-center gap-1 p-2 text-satset-green">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                    </svg>
-                    <span class="text-xs font-medium">Beranda</span>
-                </button>
-
-                <!-- Services -->
-                <button
-                    class="flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-satset-green transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                    </svg>
-                    <span class="text-xs font-medium">Layanan</span>
-                </button>
-
-                <!-- History -->
-                <button
-                    class="flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-satset-green transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span class="text-xs font-medium">Riwayat</span>
-                </button>
-
-                <!-- Profile -->
-                <button
-                    class="flex flex-col items-center gap-1 p-2 text-gray-400 hover:text-satset-green transition-colors">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <span class="text-xs font-medium">Profil</span>
-                </button>
-            </div>
-        </nav>
+        @include('components.bottomNav')
     </div>
 
-    <!-- Minimal JavaScript for interactions -->
-    <script>
-        // Auto-scroll carousel
-        let currentSlide = 0;
-        const carousel = document.querySelector('.carousel-container');
-        const slides = document.querySelectorAll('.carousel-item');
-        const totalSlides = slides.length;
-
-        function autoScroll() {
-            if (totalSlides > 0) {
-                currentSlide = (currentSlide + 1) % totalSlides;
-                carousel.scrollLeft = slides[currentSlide].offsetLeft;
-            }
-        }
-
-        // Auto-scroll every 4 seconds
-        setInterval(autoScroll, 4000);
-
-        // Add click handlers to service cards
-        document.querySelectorAll('.service-card').forEach(card => {
-            card.addEventListener('click', function () {
-                console.log('Service card clicked');
-            });
-        });
-
-        // Add click handlers to icon buttons
-        document.querySelectorAll('.icon-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                console.log('Icon button clicked');
-            });
-        });
-
-        // Add click handlers to bottom nav
-        document.querySelectorAll('.bottom-nav button').forEach(btn => {
-            btn.addEventListener('click', function () {
-                // Remove active state from all buttons
-                document.querySelectorAll('.bottom-nav button').forEach(b => {
-                    b.classList.remove('text-satset-green');
-                    b.classList.add('text-gray-400');
-                });
-
-                // Add active state to clicked button
-                this.classList.remove('text-gray-400');
-                this.classList.add('text-satset-green');
-            });
-        });
-
-    </script>
+    @include('dashboard.scriptBottom')
 </body>
 
 </html>
+
+@endsection
+
+@push('style')
+<style>
+        /* Firefox compatibility fixes */
+        @-moz-document url-prefix() {
+
+            input[type="text"],
+            input[type="email"] {
+                -moz-appearance: none !important;
+                appearance: none !important;
+                color: #000000 !important;
+                background-color: #ffffff !important;
+            }
+        }
+
+        /* General input fixes */
+        input {
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            color: #000000 !important;
+            background-color: #ffffff !important;
+        }
+
+        /* Carousel styling */
+        .carousel-container {
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+        }
+
+        .carousel-item {
+            scroll-snap-align: start;
+            flex-shrink: 0;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Card hover effects */
+        .service-card {
+            transition: all 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Icon button hover */
+        .icon-btn {
+            transition: all 0.2s ease;
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(45, 122, 110, 0.2);
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            backdrop-filter: blur(10px);
+            background-color: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Activity item animation */
+        .activity-item {
+            animation: slideIn 0.5s ease-out backwards;
+        }
+
+        .activity-item:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .activity-item:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .activity-item:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+    </style>
+@endpush
+
+@push('script_head')
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'satset-green': '#2d7a6e',
+                        'satset-dark': '#246359'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.7s ease-out',
+                        'slide-in': 'slideIn 0.5s ease-out',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'scale(0.95)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'scale(1)'
+                            }
+                        },
+                        slideIn: {
+                            '0%': {
+                                opacity: '0',
+                                transform: 'translateX(-20px)'
+                            },
+                            '100%': {
+                                opacity: '1',
+                                transform: 'translateX(0)'
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    </script>
+@endpush

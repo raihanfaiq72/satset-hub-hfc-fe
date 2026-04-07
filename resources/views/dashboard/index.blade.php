@@ -17,7 +17,7 @@
                     <div class="carousel-item w-full">
                         <div class="relative rounded-xl overflow-hidden shadow-lg service-card">
                             <div class="w-full h-44 bg-white flex items-center justify-center p-6">
-                                <img src="https://api.satset.co.id/asset/logo.png" alt="Logo SatSet"
+                                <img src="{{ $banner['gambar'] }}" alt="Logo SatSet"
                                     class="h-full object-contain">
                             </div>
                             <div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-4">

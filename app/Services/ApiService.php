@@ -42,4 +42,9 @@ class ApiService
     {
         return $this->request('get', 'layanan');
     }
+
+    public function getServiceDetail($kode)
+    {
+        return $this->request('get', "layanan/$kode");
+    }
 }

@@ -13,18 +13,35 @@ class ServiceController extends Controller
         $this->api = $api;
     }
 
-    public function index()
-    {
+    public function index(){
         $services = $this->api->getServices();
-        $publishedServices = array_filter($services, function($service) {
-            return isset($service['release_status']) && $service['release_status'] === 'published';
+
+        $serviceParents = array_filter($services, function($service) {
+            return $service['release_status'] === 'published';
         });
 
-        $publishedServices = array_values($publishedServices);
+        foreach ($serviceParents as &$parent) {
+            if (!empty($parent['children'])) {
+                $parent['children'] = array_filter($parent['children'], function($child) {
+                    return $child['release_status'] === 'published';
+                });
+                $parent['children'] = array_values($parent['children']);
+            }
+        }
+        unset($parent);
 
-        // echo json_encode($publishedServices);
-        return view('services.index',[
-            'services' => $publishedServices
+        return view('services.index', [
+            'serviceParents' => array_values($serviceParents)
+        ]);
+    }
+
+    public function show($kode){
+        $service = $this->api->getServiceDetail($kode);
+
+        // echo json_encode($service); 
+
+        return view('services.detail', [
+            'service' => $service
         ]);
     }
 }

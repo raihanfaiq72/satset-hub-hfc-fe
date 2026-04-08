@@ -10,7 +10,8 @@ $galleryItems = json_decode($service['gambar'], true) ?? [];
     <div class="flex min-h-screen flex-col">
         <!-- Floating Header -->
         <header class="fixed top-0 z-30 w-full px-5 py-4 flex items-center justify-between pointer-events-none">
-            <button onclick="window.history.back()"
+            <a href="{{url('services')}}">
+                <button 
                 class="pointer-events-auto flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-md text-gray-800 shadow-lg hover:bg-white transition-all btn-active">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -18,6 +19,7 @@ $galleryItems = json_decode($service['gambar'], true) ?? [];
                     <polyline points="12 19 5 12 12 5"></polyline>
                 </svg>
             </button>
+            </a>
         </header>
 
         <!-- Main Content -->
@@ -94,7 +96,7 @@ $galleryItems = json_decode($service['gambar'], true) ?? [];
 
         <!-- Footer CTA -->
         <div class="footer-cta fixed bottom-0 left-0 right-0 bg-white/90 p-6 border-t border-gray-100 z-20">
-            <a href="service-book-mockup.html" class="block">
+            <a href="{{ route('services.book', $service['kode']) }}" class="block">
                 <button
                     class="w-full h-16 bg-satset-green hover:bg-satset-dark text-white font-black text-lg rounded-3xl shadow-xl shadow-satset-green/30 uppercase tracking-widest transition-all btn-active">
                     Pesan Sekarang

@@ -44,4 +44,10 @@ class ServiceController extends Controller
             'service' => $service
         ]);
     }
+
+    public function book($kode){
+        return view('services.book', [
+            // 'kode' => $kode
+        ]);
+    }
 }

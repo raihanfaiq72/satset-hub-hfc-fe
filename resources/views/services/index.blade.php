@@ -3,7 +3,6 @@
 
 <body class="bg-gray-50 min-h-screen">
     <div class="flex min-h-screen flex-col">
-        <!-- Header -->
         <header class="sticky top-0 z-20 bg-white px-5 py-4 header-shadow flex items-center gap-4">
             <a href="{{ route('dashboard') }}" class="text-gray-800 hover:text-satset-green transition-colors">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -15,9 +14,7 @@
             <h1 class="text-xl font-bold text-gray-800">Semua Layanan</h1>
         </header>
 
-        <!-- Main Content -->
         <main class="flex-1 pb-24 pt-4">
-            <!-- Hiburan & Game Section -->
             @foreach($serviceParents as $parent)
                 <div class="px-5 pb-6">
                     <h3 class="font-bold text-gray-800 text-lg mb-2">{{ $parent['keterangan'] }}</h3>

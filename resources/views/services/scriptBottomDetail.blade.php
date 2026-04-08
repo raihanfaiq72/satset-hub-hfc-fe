@@ -51,7 +51,6 @@ document.addEventListener('keydown', function(e){
     }
 });
 
-// Mobile swipe
 let touchStartX = 0;
 let touchEndX = 0;
 

@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,4 +21,5 @@ Route::middleware(['api.auth'])->group(function () {
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
     Route::get('/services/{kode}', [ServiceController::class, 'show'])->name('services.detail');
     Route::get('/service/{kode}/book', [ServiceController::class, 'book'])->name('services.book');
+    Route::get('/voucher',[VoucherController::class,'index'])->name('voucher.index');
 });

@@ -28,7 +28,7 @@
     // Payment functions
     function openPayment(voucher) {
         selectedVoucher = voucher;
-        
+
         // Filter available vouchers for this batch
         if (window.allVouchers) {
             availableVouchers = window.allVouchers.filter(v => v.batch_id === voucher.id && v.status === 'available');
@@ -147,6 +147,91 @@
             console.error('Error buying voucher:', error);
             alert('Terjadi kesalahan saat menghubungi server.');
         }
+    }
+
+    // Voucher Detail Logic
+    function openVoucherDetail(id) {
+        if (!window.userPaymentVouchers) return;
+
+        const voucher = window.userPaymentVouchers.find(v => v.id === id);
+        if (!voucher) {
+            console.error('Voucher not found with ID:', id);
+            return;
+        }
+
+        const page = document.getElementById('voucherDetailPage');
+        if (!page) return;
+
+        // Data Binding (No HTML in JS)
+        const nameEl = page.querySelector('.js-detail-name');
+        const typeEl = page.querySelector('.js-detail-type');
+        const codeEl = page.querySelector('.js-detail-code');
+        const statusEl = page.querySelector('.js-detail-status');
+        const valueEl = page.querySelector('.js-detail-value');
+        const validityEl = page.querySelector('.js-detail-validity');
+        const descEl = page.querySelector('.js-detail-description');
+
+        // Hero Components
+        const gradientEl = page.querySelector('.js-detail-gradient');
+        const imageBgEl = page.querySelector('.js-detail-image-bg');
+        const imageOverlayEl = page.querySelector('.js-detail-image-overlay');
+        const iconContainerEl = page.querySelector('.js-detail-icon-container');
+
+        // Handle Background & Icon Visibility
+        const hasImage = voucher.batch_info.voucher_image && voucher.batch_info.voucher_image !== '';
+        
+        if (hasImage) {
+            if (imageBgEl) {
+                imageBgEl.src = voucher.batch_info.voucher_image;
+                imageBgEl.classList.remove('hidden');
+            }
+            if (imageOverlayEl) imageOverlayEl.classList.remove('hidden');
+            if (gradientEl) gradientEl.classList.add('hidden');
+            if (iconContainerEl) iconContainerEl.classList.add('hidden');
+        } else {
+            if (imageBgEl) {
+                imageBgEl.src = '';
+                imageBgEl.classList.add('hidden');
+            }
+            if (imageOverlayEl) imageOverlayEl.classList.add('hidden');
+            if (gradientEl) gradientEl.classList.remove('hidden');
+            if (iconContainerEl) iconContainerEl.classList.remove('hidden');
+        }
+
+        if (nameEl) nameEl.textContent = voucher.batch_info.voucher_name;
+        if (typeEl) typeEl.textContent = voucher.batch_info.type;
+        if (codeEl) codeEl.textContent = voucher.voucher_code;
+        if (statusEl) statusEl.textContent = voucher.status;
+
+        if (valueEl) {
+            const value = parseFloat(voucher.face_value);
+            valueEl.textContent = `Rp${value.toLocaleString('id-ID')}`;
+        }
+
+        if (validityEl) {
+            const from = new Date(voucher.batch_info.valid_from).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            const until = new Date(voucher.batch_info.valid_until).toLocaleDateString('id-ID', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            validityEl.textContent = `${from} - ${until}`;
+        }
+
+        if (descEl) descEl.textContent = voucher.batch_info.voucher_description;
+
+        // Transitions
+        document.getElementById('voucherPage').classList.add('hidden');
+        page.classList.remove('hidden');
+    }
+
+    function closeVoucherDetail() {
+        document.getElementById('voucherDetailPage').classList.add('hidden');
+        document.getElementById('voucherPage').classList.remove('hidden');
     }
 
     // Initialize

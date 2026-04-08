@@ -159,6 +159,7 @@
         </div>
 
         @include('voucher.partials.payment-steps')
+        @include('voucher.partials.voucher-detail')
 
         <!-- Payment Modal -->
         <div id="paymentModal" class="fixed inset-0 z-50 flex flex-col bg-white hidden">
@@ -185,6 +186,7 @@
         @include('voucher.scriptBottom')
         <script>
             window.allVouchers = @json($vouchers);
+            window.userPaymentVouchers = @json($userPaymentVouchers);
             window.buyVoucherRoute = "{{ route('voucher.buy') }}";
             window.csrfToken = "{{ csrf_token() }}";
         </script>

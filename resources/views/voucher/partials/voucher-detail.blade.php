@@ -1,7 +1,7 @@
 <!-- Voucher Detail Overaly -->
 <div id="voucherDetailPage" class="fixed inset-0 z-[60] flex flex-col bg-gray-50 hidden overflow-y-auto">
     <!-- Header -->
-    <header class="bg-white px-5 py-6 flex items-center gap-4 sticky top-0 z-10 shadow-sm">
+    <header class="bg-white px-5 py-6 flex items-center gap-4 sticky top-0 z-50 shadow-sm">
         <button onclick="closeVoucherDetail()"
             class="h-10 w-10 flex items-center justify-center rounded-full active:bg-gray-100 transition-colors">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -19,10 +19,12 @@
         <div class="px-5 pt-8 pb-4">
             <div class="relative w-full aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl group">
                 <!-- Fallback Gradient -->
-                <div class="absolute inset-0 bg-gradient-to-br from-satset-green to-satset-dark js-detail-gradient"></div>
+                <div class="absolute inset-0 bg-gradient-to-br from-satset-green to-satset-dark js-detail-gradient">
+                </div>
 
                 <!-- Voucher Image Background -->
-                <img src="" alt="Voucher" class="absolute inset-0 w-full h-full object-cover hidden js-detail-image-bg">
+                <img src="" alt="Voucher"
+                    class="absolute inset-0 w-full h-full object-cover hidden js-detail-image-bg">
                 <div class="absolute inset-0 bg-black/40 hidden js-detail-image-overlay"></div>
 
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-white p-8 z-10">
@@ -36,7 +38,8 @@
                         </svg>
                     </div>
                     <h2 class="text-2xl font-black text-center leading-tight js-detail-name">---</h2>
-                    <p class="text-white/60 text-xs font-bold mt-2 tracking-widest uppercase js-detail-type">---</p>
+                    <p class="text-white/60 text-xs font-bold mt-2 tracking-widest uppercase js-detail-type">---
+                    </p>
                 </div>
                 <!-- Gloss Effect -->
                 <div

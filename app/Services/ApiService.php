@@ -15,18 +15,26 @@ class ApiService
 
     protected function request($method, $endpoint, $data = [])
     {
-        if (!$this->token) {
+        if (! $this->token) {
             throw new \Exception('No API token in session');
         }
 
-        $response = Http::withToken($this->token)->$method("http://localhost:8000/api/$endpoint", $data);
+        $url = "http://localhost:8000/api/$endpoint";
+
+        if (strtolower($method) === 'get' && ! empty($data)) {
+            $response = Http::withToken($this->token)
+                ->withBody(json_encode($data), 'application/json')
+                ->send('GET', $url);
+        } else {
+            $response = Http::withToken($this->token)->$method($url, $data);
+        }
 
         if ($response->status() == 401) {
             session()->forget(['api_token', 'user_data']);
             throw new \Exception('Unauthorized');
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             throw new \Exception('API request failed');
         }
 
@@ -46,5 +54,25 @@ class ApiService
     public function getServiceDetail($kode)
     {
         return $this->request('get', "layanan/$kode");
+    }
+
+    public function getVoucherBatches()
+    {
+        return $this->request('get', 'payment-vouchers/batches');
+    }
+
+    public function getVouchers()
+    {
+        return $this->request('get', 'payment-vouchers');
+    }
+
+    public function buyVoucher($data)
+    {
+        return $this->request('post', 'payment-vouchers/user-buy', $data);
+    }
+
+    public function getUserPaymentVouchers($data)
+    {
+        return $this->request('get', 'payment-vouchers/user', $data);
     }
 }

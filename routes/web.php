@@ -22,4 +22,5 @@ Route::middleware(['api.auth'])->group(function () {
     Route::get('/services/{kode}', [ServiceController::class, 'show'])->name('services.detail');
     Route::get('/service/{kode}/book', [ServiceController::class, 'book'])->name('services.book');
     Route::get('/voucher',[VoucherController::class,'index'])->name('voucher.index');
+    Route::post('/voucher/buy',[VoucherController::class,'buy'])->name('voucher.buy');
 });

@@ -15,12 +15,15 @@
         newAddress: {
             title: "",
             address: "",
-            lat: -7.008310559652935, // Default to Jakarta
-            lng: 110.41789795132465,
-            province: "",
-            regency: "",
-            district: "",
-            village: ""
+            rt: "",
+            rw: "",
+            namaPIC: "",
+            noHpPIC: "",
+            jenisBangunan: "",
+            idProvince: "",
+            idRegencies: "",
+            idDistricts: "",
+            idVillages: ""
         }
     };
 
@@ -165,185 +168,28 @@
         return template;
     }
 
-    let mapInstance = null;
-    let markerInstance = null;
-
     function renderNewAddressForm() {
         const template = document.getElementById('tpl-step-21').content.cloneNode(true);
 
         // Populate inputs from existing orderData if any
         template.getElementById('locNameInput').value = orderData.newAddress.title;
+        template.getElementById('locRTInput').value = orderData.newAddress.rt;
+        template.getElementById('locRWInput').value = orderData.newAddress.rw;
+        template.getElementById('picNameInput').value = orderData.newAddress.namaPIC;
+        template.getElementById('picPhoneInput').value = orderData.newAddress.noHpPIC;
+        template.getElementById('buildingTypeInput').value = orderData.newAddress.jenisBangunan;
         template.getElementById('fullAddressArea').value = orderData.newAddress.address;
 
-        // Fetch Provinces immediately
-        fetchProvinces();
+        template.getElementById('formDate').value = orderData.date;
+        template.getElementById('formTime').value = orderData.time;
 
-        // Delay map initialization until after it's in the DOM
+        // Delay map and TomSelect initialization until after it's in the DOM
         setTimeout(() => {
-            initNewAddressMap();
+            initTomSelects();
+            fetchProvinces();
         }, 300);
 
         return template;
-    }
-
-    function initNewAddressMap() {
-        const container = document.getElementById('newAddressMap');
-        if (!container) return;
-
-        if (mapInstance) {
-            mapInstance.remove();
-        }
-
-        mapInstance = L.map('newAddressMap').setView([orderData.newAddress.lat, orderData.newAddress.lng], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(mapInstance);
-
-        markerInstance = L.marker([orderData.newAddress.lat, orderData.newAddress.lng], {
-            draggable: true
-        }).addTo(mapInstance);
-
-        markerInstance.on('dragend', function(e) {
-            const pos = markerInstance.getLatLng();
-            orderData.newAddress.lat = pos.lat;
-            orderData.newAddress.lng = pos.lng;
-            reverseGeocode(pos.lat, pos.lng);
-        });
-    }
-
-    async function searchAddress(query) {
-        const suggestionsBox = document.getElementById('searchSuggestions');
-        if (!query || query.length < 3) {
-            suggestionsBox.innerHTML = '';
-            suggestionsBox.classList.add('hidden');
-            return;
-        }
-
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=id&limit=5`
-            );
-            const data = await response.json();
-
-            if (data.length > 0) {
-                suggestionsBox.innerHTML = data.map(item => `
-                    <div class="px-5 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0" onclick="onSelectSuggestion('${item.display_name}', ${item.lat}, ${item.lon})">
-                        <p class="text-sm font-bold text-gray-800 line-clamp-1">${item.display_name.split(',')[0]}</p>
-                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.display_name}</p>
-                    </div>
-                `).join('');
-                suggestionsBox.classList.remove('hidden');
-            } else {
-                suggestionsBox.innerHTML =
-                    '<div class="px-5 py-3 text-sm text-gray-400">Tidak ada hasil ditemukan</div>';
-                suggestionsBox.classList.remove('hidden');
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-        }
-    }
-
-    function onSelectSuggestion(display_name, lat, lon) {
-        const input = document.getElementById('locSearchInput');
-        const suggestionsBox = document.getElementById('searchSuggestions');
-
-        input.value = display_name;
-        suggestionsBox.classList.add('hidden');
-
-        orderData.newAddress.address = display_name;
-        orderData.newAddress.lat = lat;
-        orderData.newAddress.lng = lon;
-
-        document.getElementById('fullAddressArea').value = display_name;
-
-        if (mapInstance && markerInstance) {
-            const newPos = [lat, lon];
-            mapInstance.setView(newPos, 16);
-            markerInstance.setLatLng(newPos);
-        }
-
-        reverseGeocode(lat, lon);
-    }
-
-    async function reverseGeocode(lat, lng) {
-        try {
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-            const data = await response.json();
-            if (data && data.display_name) {
-                document.getElementById('fullAddressArea').value = data.display_name;
-                orderData.newAddress.address = data.display_name;
-
-                // Try to auto-set administrative dropdowns if info available
-                // Note: Nominatim data structure varies, we'll try our best
-                console.log('Reverse geocode data:', data.address);
-            }
-        } catch (error) {
-            console.error('Reverse geocode error:', error);
-        }
-    }
-
-    function updateNewAddressData(key, value) {
-        orderData.newAddress[key] = value;
-    }
-
-    // Administrative Dropdowns Implementation
-    async function fetchProvinces() {
-        const res = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
-        const data = await res.json();
-        const select = document.getElementById('provSelect');
-        if (!select) return;
-        select.innerHTML = '<option value="">Pilih Provinsi</option>' +
-            data.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-    }
-
-    async function onProvinceChange(id) {
-        orderData.newAddress.province = id;
-        const reg = document.getElementById('regSelect');
-        const dist = document.getElementById('distSelect');
-        const vill = document.getElementById('villSelect');
-
-        reg.disabled = false;
-        reg.innerHTML = '<option value="">Memuat...</option>';
-        dist.disabled = true;
-        vill.disabled = true;
-
-        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${id}.json`);
-        const data = await res.json();
-        reg.innerHTML = '<option value="">Pilih Kota</option>' +
-            data.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-    }
-
-    async function onRegencyChange(id) {
-        orderData.newAddress.regency = id;
-        const dist = document.getElementById('distSelect');
-        const vill = document.getElementById('villSelect');
-
-        dist.disabled = false;
-        dist.innerHTML = '<option value="">Memuat...</option>';
-        vill.disabled = true;
-
-        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${id}.json`);
-        const data = await res.json();
-        dist.innerHTML = '<option value="">Pilih Kecamatan</option>' +
-            data.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
-    }
-
-    async function onDistrictChange(id) {
-        orderData.newAddress.district = id;
-        const vill = document.getElementById('villSelect');
-
-        vill.disabled = false;
-        vill.innerHTML = '<option value="">Memuat...</option>';
-
-        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/villages/${id}.json`);
-        const data = await res.json();
-        vill.innerHTML = '<option value="">Pilih Kelurahan</option>' +
-            data.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
-    }
-
-    function onVillageChange(id) {
-        orderData.newAddress.village = id;
     }
 
     function renderPayment() {
@@ -376,12 +222,20 @@
             }
         }
         if (currentStep === 21) {
-            if (!orderData.newAddress.address) {
-                alert("Silakan lengkapi alamat baru kamu!");
-                return;
+            // Trigger standard form submission (Non-AJAX)
+            const form = document.getElementById('newAddressForm');
+            if (form) {
+                // Ensure date/time are latest
+                document.getElementById('formDate').value = orderData.date;
+                document.getElementById('formTime').value = orderData.time;
+
+                // Validation check before submit
+                if (form.checkValidity()) {
+                    document.getElementById('submitNewAddress').click();
+                } else {
+                    form.reportValidity();
+                }
             }
-            currentStep = 3;
-            updateStep();
             return;
         }
         if (currentStep < 4) {

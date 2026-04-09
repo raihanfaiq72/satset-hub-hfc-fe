@@ -81,6 +81,7 @@
         @include('services.partials.step4_success')
 
         @include('services.scriptBottomBook')
+        @include('services.partials.scriptNewAddress')
     </body>
 @endsection
 
@@ -224,12 +225,41 @@
         .leaflet-container {
             font-family: inherit;
         }
+
+        /* TomSelect Theme satset-green */
+        .ts-control {
+            border-radius: 12px !important;
+            border-width: 2px !important;
+            border-color: #f3f4f6 !important;
+            padding: 10px 16px !important;
+            font-weight: 700 !important;
+            color: #1f2937 !important;
+        }
+        .ts-wrapper.focus .ts-control {
+            border-color: #2d7a6e !important;
+            box-shadow: none !important;
+        }
+        .ts-dropdown {
+            border-radius: 16px !important;
+            border: none !important;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
+            margin-top: 8px !important;
+        }
+        .ts-dropdown .active {
+            background-color: #2d7a6e !important;
+            color: white !important;
+        }
+        .ts-control .item {
+            font-weight: 700 !important;
+        }
     </style>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css">
 @endpush
 
 @push('script_head')
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script>
         tailwind.config = {
             theme: {

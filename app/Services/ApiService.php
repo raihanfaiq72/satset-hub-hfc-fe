@@ -75,4 +75,9 @@ class ApiService
     {
         return $this->request('get', 'payment-vouchers/user', $data);
     }
+
+    public function createLokasi($data)
+    {
+        return $this->request('post', 'lokasi/create', $data);
+    }
 }

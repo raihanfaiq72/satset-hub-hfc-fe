@@ -12,7 +12,7 @@
                     Pilih Tanggal
                 </h3>
                 <div class="flex items-center gap-3">
-                    <button onclick="changeMonth(-1)" class="p-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
+                    <button id="prevMonthBtn" onclick="changeMonth(-1)" class="p-1.5 rounded-full bg-gray-50 text-gray-600 hover:bg-gray-100 transition-colors">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                     <span id="calendarMonth" class="font-bold text-gray-800 text-sm w-24 text-center"></span>

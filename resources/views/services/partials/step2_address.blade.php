@@ -3,15 +3,6 @@
         <div id="addressList" class="space-y-4">
             <!-- Address cards will be injected by JS -->
         </div>
-        <div id="newAddressInputContainer" class="hidden space-y-2">
-            <input 
-                type="text" 
-                id="customAddressInput"
-                placeholder="Masukkan alamat lengkap pengiriman..."
-                class="h-14 rounded-2xl border-gray-200 focus:ring-satset-green w-full px-4 border-2"
-                onchange="updateCustomAddress(this.value)"
-            />
-        </div>
     </div>
 </template>
 

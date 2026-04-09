@@ -76,6 +76,7 @@
         {{-- Templates --}}
         @include('services.partials.step1_schedule')
         @include('services.partials.step2_address')
+        @include('services.partials.step2_new_address')
         @include('services.partials.step3_payment')
         @include('services.partials.step4_success')
 
@@ -96,7 +97,7 @@
             }
         }
 
-        input {
+        input:not([type="radio"]):not([type="checkbox"]) {
             -webkit-appearance: none !important;
             -moz-appearance: none !important;
             appearance: none !important;
@@ -149,8 +150,8 @@
         }
 
         .radio-custom:checked {
-            border-color: #2d7a6e;
-            background-color: #2d7a6e;
+            border-color: #2d7a6e !important;
+            background-color: #2d7a6e !important;
         }
 
         .radio-custom:checked::after {
@@ -187,6 +188,15 @@
             color: white;
         }
 
+        .slot-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #f9fafb !important;
+            border-color: #f3f4f6 !important;
+            color: #9ca3af !important;
+            transform: none !important;
+        }
+
         .address-card {
             transition: all 0.2s ease;
         }
@@ -203,10 +213,23 @@
         .qr-container {
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
         }
+
+        #newAddressMap {
+            height: 250px;
+            width: 100%;
+            border-radius: 1.5rem;
+            z-index: 10;
+        }
+
+        .leaflet-container {
+            font-family: inherit;
+        }
     </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 @endpush
 
 @push('script_head')
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
     <script>
         tailwind.config = {
             theme: {

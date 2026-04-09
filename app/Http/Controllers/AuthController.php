@@ -95,4 +95,25 @@ class AuthController extends Controller
             'password' => 'Failed to reset password. Please try again.'
         ])->withInput();
     }
+
+    public function register(){
+        return view('auth.register');
+    }
+
+    public function registerUser(Request $request){
+        $response = Http::post('http://localhost:8000/api/auth/register', [
+            'username' => $request->username,
+            'noHp' => $request->noHp,
+            'password' => $request->password,
+            'password_confirmation' => $request->password_confirmation,
+        ]);
+
+        if($response->successful()){
+            return redirect()->route('login')->with('success', 'Registration successful. Please login with your new account.');
+        }
+
+        return back()->withErrors([
+            'email' => 'Failed to register. Please try again.'
+        ])->withInput();
+    }
 }

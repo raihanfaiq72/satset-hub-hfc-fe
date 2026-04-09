@@ -85,4 +85,9 @@ class ApiService
     {
         return $this->request('get', 'order/history', $data);
     }
+
+    public function createLokasi($data)
+    {
+        return $this->request('post', 'lokasi/create', $data);
+    }
 }

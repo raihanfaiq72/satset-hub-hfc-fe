@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ApiService;
+use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
@@ -51,6 +52,45 @@ class ServiceController extends Controller
     {
         return view('services.book', [
             'kode' => $kode,
+            'api_token' => session('api_token'),
         ]);
+    }
+
+    public function storeLocation(Request $request, $kode)
+    {
+        $request->validate([
+            'NamaLokasi' => 'required',
+            'alamat' => 'required',
+            'RT' => 'required',
+            'RW' => 'required',
+            'idProvince' => 'required',
+            'idRegencies' => 'required',
+            'idDistricts' => 'required',
+            'idVillages' => 'required',
+            'namaPIC' => 'required',
+            'noHpPIC' => 'required',
+            'jenisBangunan' => 'required',
+        ]);
+
+        $data = $request->all();
+        $data['idCustomer'] = session('user_data')['id'] ?? null;
+
+        if (! $data['idCustomer']) {
+            return back()->withErrors(['error' => 'Sesi pengguna tidak valid. Silakan login kembali.'])->withInput();
+        }
+
+        try {
+            $response = $this->api->createLokasi($data);
+
+            return redirect()->route('services.book', $kode)->with([
+                'success' => 'Lokasi berhasil ditambahkan!',
+                'new_address_id' => $response['Id'] ?? null,
+                'p_date' => $request->date,
+                'p_time' => $request->time,
+                'p_step' => 3,
+            ]);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
+        }
     }
 }

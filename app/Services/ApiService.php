@@ -21,12 +21,15 @@ class ApiService
 
         $url = "http://localhost:8000/api/$endpoint";
 
-        if (strtolower($method) === 'get' && ! empty($data)) {
+        if (strtolower($method) === 'get') {
             $response = Http::withToken($this->token)
-                ->withBody(json_encode($data), 'application/json')
-                ->send('GET', $url);
+                ->accept('application/json')
+                ->get($url, $data);
         } else {
-            $response = Http::withToken($this->token)->$method($url, $data);
+            $response = Http::withToken($this->token)
+                ->accept('application/json')
+                ->asJson()
+                ->$method($url, $data);
         }
 
         if ($response->status() == 401) {
@@ -35,7 +38,9 @@ class ApiService
         }
 
         if (! $response->successful()) {
-            throw new \Exception('API request failed');
+            $status = $response->status();
+            $body = $response->body();
+            throw new \Exception("API request failed: HTTP $status - $body");
         }
 
         return $response->json()['data'] ?? [];
@@ -74,6 +79,11 @@ class ApiService
     public function getUserPaymentVouchers($data)
     {
         return $this->request('get', 'payment-vouchers/user', $data);
+    }
+
+    public function getOrderHistory($data = [])
+    {
+        return $this->request('get', 'order/history', $data);
     }
 
     public function createLokasi($data)

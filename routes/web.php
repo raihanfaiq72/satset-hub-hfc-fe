@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HistoryController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VoucherController;
 use Illuminate\Support\Facades\Route;
@@ -29,4 +30,5 @@ Route::middleware(['api.auth'])->group(function () {
     Route::post('/service/{kode}/book/location', [ServiceController::class, 'storeLocation'])->name('services.book.location');
     Route::get('/voucher',[VoucherController::class,'index'])->name('voucher.index');
     Route::post('/voucher/buy',[VoucherController::class,'buy'])->name('voucher.buy');
+    Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
 });

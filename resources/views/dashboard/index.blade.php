@@ -20,15 +20,19 @@
                                 <img src="{{ $banner['gambar'] }}" alt="{{ $banner['judul'] }}"
                                     class="w-full h-full object-cover">
                             </div>
-                            <div class="absolute inset-0 bg-black/40 flex flex-col justify-end p-4">
-                                <h3 class="text-xl md:text-2xl font-bold text-white">{{ $banner['judul'] }}</h3>
-                                <p class="text-sm text-gray-200">{{ $banner['deskripsi'] }}</p>
-                                <a href="{{ $banner['button_link'] }}" target="{{ $banner['target'] }}">
-                                    <button class="mt-2 rounded-full px-4 py-2 text-white font-semibold transition"
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent flex items-end justify-between p-4 gap-4">
+                                <a href="{{ $banner['button_link'] }}" target="{{ $banner['target'] }}"
+                                    class="shrink-0 mb-1">
+                                    <button
+                                        class="rounded-full px-5 py-2 text-white font-bold transition text-sm shadow-md"
                                         style="background-color: {{ $banner['button_color'] }}">
                                         {{ $banner['button_text'] }}
                                     </button>
                                 </a>
+                                <p class="text-[10px] text-white text-left leading-tight w-[55%]">
+                                    {{ $banner['deskripsi'] }}
+                                </p>
                             </div>
                         </div>
                     </div>

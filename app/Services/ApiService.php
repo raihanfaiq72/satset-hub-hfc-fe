@@ -80,4 +80,9 @@ class ApiService
     {
         return $this->request('post', 'lokasi/create', $data);
     }
+
+    public function getUserLocations($data)
+    {
+        return $this->request('get', 'lokasi', $data);
+    }
 }

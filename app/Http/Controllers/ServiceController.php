@@ -50,9 +50,14 @@ class ServiceController extends Controller
 
     public function book($kode)
     {
+        $userLocations = $this->api->getUserLocations([
+            'user_id' => session('user_data')['id'] ?? null,
+        ]);
+
         return view('services.book', [
             'kode' => $kode,
             'api_token' => session('api_token'),
+            'user_locations' => $userLocations,
         ]);
     }
 
@@ -87,7 +92,7 @@ class ServiceController extends Controller
                 'new_address_id' => $response['Id'] ?? null,
                 'p_date' => $request->date,
                 'p_time' => $request->time,
-                'p_step' => 3,
+                'p_step' => 2,
             ]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();

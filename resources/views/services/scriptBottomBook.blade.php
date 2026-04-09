@@ -1,5 +1,5 @@
 <script>
-    let currentStep = 1;
+    let currentStep = {{ session('p_step', 1) }};
     let viewMonth = new Date().getMonth();
     let viewYear = new Date().getFullYear();
 
@@ -8,9 +8,10 @@
         `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
     const orderData = {
-        date: todayStr,
-        time: "10:00",
-        addressType: "default",
+        date: "{{ session('p_date') }}" || todayStr,
+        time: "{{ session('p_time') }}" || "10:00",
+        addressType: "{{ session('new_address_id', 'default') }}",
+        addressName: "Alamat Default",
         customAddress: "",
         newAddress: {
             title: "",
@@ -120,49 +121,12 @@
 
     function renderAddress() {
         const template = document.getElementById('tpl-step-2').content.cloneNode(true);
-        const list = template.getElementById('addressList');
-        const addresses = [{
-                value: "default",
-                title: "Rumah (Default)",
-                desc: "Jl. Mawar No. 123, Semarang Tengah",
-                icon: 'home'
-            },
-            {
-                value: "new",
-                title: "Gunakan Alamat Baru",
-                desc: "",
-                icon: 'plus'
+        const radioGroup = template.querySelectorAll('input[name="addressSelection"]');
+
+        radioGroup.forEach(radio => {
+            if (radio.value == orderData.addressType) {
+                radio.checked = true;
             }
-        ];
-
-        addresses.forEach(addr => {
-            const cardTmpl = document.getElementById('tpl-address-card').content.cloneNode(true);
-            const card = cardTmpl.querySelector('.address-card');
-            const input = cardTmpl.querySelector('input');
-
-            if (orderData.addressType === addr.value) {
-                card.classList.add('selected', 'border-satset-green', 'bg-satset-green/5');
-                input.checked = true;
-            } else {
-                card.classList.add('border-gray-100', 'bg-white', 'shadow-sm', 'hover:border-satset-green/30');
-            }
-
-            input.value = addr.value;
-            input.onchange = () => selectAddress(addr.value);
-
-            cardTmpl.querySelector('.addr-title').textContent = addr.title;
-            cardTmpl.querySelector('.addr-desc').textContent = addr.desc;
-
-            const iconContainer = cardTmpl.querySelector('.addr-icon');
-            if (addr.icon === 'home') {
-                iconContainer.innerHTML =
-                    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-satset-green"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>`;
-            } else {
-                iconContainer.innerHTML =
-                    `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-satset-green"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
-            }
-
-            list.appendChild(cardTmpl);
         });
 
         return template;
@@ -196,7 +160,7 @@
         const template = document.getElementById('tpl-step-3').content.cloneNode(true);
         template.getElementById('summaryTime').innerHTML = `${formatDate(orderData.date)},<br/>${orderData.time} WIB`;
 
-        let locText = "Rumah";
+        let locText = orderData.addressName || "Lokasi";
         if (orderData.addressType === "new") {
             locText = orderData.newAddress.title || orderData.newAddress.address || "Alamat Baru";
         }
@@ -354,8 +318,9 @@
         updateStep();
     }
 
-    function selectAddress(type) {
+    function selectAddress(type, name = "Alamat") {
         orderData.addressType = type;
+        orderData.addressName = name;
         updateStep();
     }
 

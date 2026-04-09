@@ -16,30 +16,29 @@
 
         <main class="flex-1 pb-24 pt-4">
             @foreach($serviceParents as $parent)
-                <div class="px-5 pb-6">
-                    <h3 class="font-bold text-gray-800 text-lg mb-2">{{ $parent['keterangan'] }}</h3>
-                    <div class="grid grid-cols-2 gap-4">
-                        @foreach($parent['children'] as $child)
-                            <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
-                                <div class="w-full h-36 bg-gray-50 flex items-center justify-center p-8">
-                                    <img src="{{ $child['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}" 
-                                        alt="Service Icon"
-                                        class="h-full object-contain opacity-80">
-                                </div>
-                                <div class="p-4 flex flex-col gap-2 flex-1 justify-between">
-                                    <div>
-                                        <h4 class="font-bold text-gray-800">{{ $child['kode'] }}</h4>
-                                        <p class="text-xs text-gray-500 mt-1">{{ $child['keterangan'] }}</p>
-                                    </div>
-                                    <a href="{{ route('services.detail', ['kode' => $child['kode']]) }}" 
-                                        class="mt-2 block w-full rounded-full bg-satset-green px-3 py-2 text-white font-semibold text-center hover:bg-satset-dark transition z-10">
-                                    Pesan
-                                    </a>
-                                </div>
+            <div class="px-5 pb-6">
+                <h3 class="font-bold text-gray-800 text-lg mb-2">{{ $parent['keterangan'] }}</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    @foreach($parent['children'] as $child)
+                    <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+                        <div class="w-full h-36 bg-gray-50 flex items-center justify-center">
+                            <img src="{{ $child['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}"
+                                alt="Service Icon" class="w-full h-full object-cover opacity-80">
+                        </div>
+                        <div class="p-4 flex flex-col gap-2 flex-1 justify-between">
+                            <div>
+                                <h4 class="font-bold text-gray-800">{{ $child['kode'] }}</h4>
+                                <p class="text-xs text-gray-500 mt-1">{{ $child['keterangan'] }}</p>
                             </div>
-                        @endforeach
+                            <a href="{{ route('services.detail', ['kode' => $child['kode']]) }}"
+                                class="mt-2 block w-full rounded-full bg-satset-green px-3 py-2 text-white font-semibold text-center hover:bg-satset-dark transition z-10">
+                                Pesan
+                            </a>
+                        </div>
                     </div>
+                    @endforeach
                 </div>
+            </div>
             @endforeach
         </main>
 

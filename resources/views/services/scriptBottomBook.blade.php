@@ -10,8 +10,10 @@
     const orderData = {
         date: "{{ session('p_date') }}" || todayStr,
         time: "{{ session('p_time') }}" || "10:00",
+        serviceName: "{{ $service['keterangan'] ?? 'Layanan' }}",
+        price: {{ $service['harga'] ?? 0 }},
         addressType: "{{ session('new_address_id', 'default') }}",
-        addressName: "Alamat Default",
+        addressName: "{{ session('new_address_name', 'Alamat Default') }}",
         customAddress: "",
         newAddress: {
             title: "",
@@ -166,6 +168,9 @@
         }
 
         template.getElementById('summaryLocation').textContent = locText;
+        template.getElementById('summaryServiceName').textContent = orderData.serviceName;
+        template.getElementById('summaryTotalPay').textContent = `Rp${Number(orderData.price).toLocaleString('id-ID')}`;
+
         return template;
     }
 

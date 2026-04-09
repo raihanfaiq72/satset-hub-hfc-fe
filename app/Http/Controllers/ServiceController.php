@@ -54,11 +54,13 @@ class ServiceController extends Controller
             'user_id' => session('user_data')['id'] ?? null,
         ];
         $userLocations = $this->api->getUserLocations($data);
+        $service = $this->api->getServiceDetail($kode);
 
         return view('services.book', [
             'kode' => $kode,
             'api_token' => session('api_token'),
             'user_locations' => $userLocations,
+            'service' => $service,
         ]);
     }
 

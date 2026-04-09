@@ -6,7 +6,7 @@
                 <div class="space-y-3 border-b border-dashed border-gray-300 pb-5">
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400 font-medium">Layanan</span>
-                        <span class="font-bold text-gray-800">Token Listrik</span>
+                        <span id="summaryServiceName" class="font-bold text-gray-800"></span>
                     </div>
                     <div class="flex justify-between text-sm">
                         <span class="text-gray-400 font-medium">Waktu</span>
@@ -20,7 +20,7 @@
                 
                 <div class="flex justify-between items-center pt-2">
                     <span class="font-bold text-gray-800">Total Bayar</span>
-                    <span class="text-2xl font-black text-satset-green">Rp52.500</span>
+                    <span id="summaryTotalPay" class="text-2xl font-black text-satset-green"></span>
                 </div>
             </div>
         </div>

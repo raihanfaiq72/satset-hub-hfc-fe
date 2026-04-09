@@ -3,16 +3,31 @@
     let viewMonth = new Date().getMonth();
     let viewYear = new Date().getFullYear();
 
+    const today = new Date();
+    const todayStr =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
     const orderData = {
-        date: "",
+        date: todayStr,
         time: "10:00",
         addressType: "default",
-        customAddress: ""
+        customAddress: "",
+        newAddress: {
+            title: "",
+            address: "",
+            lat: -7.008310559652935, // Default to Jakarta
+            lng: 110.41789795132465,
+            province: "",
+            regency: "",
+            district: "",
+            village: ""
+        }
     };
 
     const stepContents = {
         1: renderSchedule,
         2: renderAddress,
+        21: renderNewAddressForm,
         3: renderPayment,
         4: renderSuccess
     };
@@ -50,23 +65,49 @@
         for (let d = 1; d <= daysInMonth; d++) {
             const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
             const isSelected = orderData.date === dateStr;
+            const isPast = dateStr < todayStr;
+
             const btn = document.createElement('button');
             btn.type = "button";
-            btn.onclick = () => selectDate(dateStr);
+            if (!isPast) {
+                btn.onclick = () => selectDate(dateStr);
+            } else {
+                btn.disabled = true;
+            }
+
             btn.className =
                 `slot-btn aspect-square w-full rounded-xl border-2 flex items-center justify-center p-0 ${isSelected ? "selected shadow-md border-satset-green" : "border-gray-100 bg-white shadow-sm hover:border-satset-green/50"}`;
             btn.innerHTML =
-                `<span class="text-sm font-black ${isSelected ? 'text-white' : 'text-gray-800'}">${d}</span>`;
+                `<span class="text-sm font-black ${isSelected ? 'text-white' : (isPast ? 'text-gray-300' : 'text-gray-800')}">${d}</span>`;
             daysContainer.appendChild(btn);
         }
 
+        const prevBtn = template.getElementById('prevMonthBtn');
+        if (viewYear === today.getFullYear() && viewMonth === today.getMonth()) {
+            prevBtn.disabled = true;
+            prevBtn.classList.add('opacity-30', 'cursor-not-allowed');
+            prevBtn.onclick = null;
+        }
+
         const timeGrid = template.getElementById('timeGrid');
-        ["08:00", "10:00", "14:00", "18:00"].forEach(time => {
+        const isToday = orderData.date === todayStr;
+        const now = new Date();
+        const currentTimeStr =
+            `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+        ["06:00", "10:00", "14:00", "18:00"].forEach(time => {
+            const isDisabled = isToday && time < currentTimeStr;
+            const isSelected = orderData.time === time && !isDisabled;
+
             const btn = document.createElement('button');
             btn.type = "button";
-            btn.onclick = () => selectTime(time);
+            if (!isDisabled) {
+                btn.onclick = () => selectTime(time);
+            } else {
+                btn.disabled = true;
+            }
             btn.className =
-                `slot-btn p-4 rounded-2xl border-2 font-black ${orderData.time === time ? "selected shadow-lg border-satset-green" : "border-gray-100 bg-white text-gray-600 shadow-sm"}`;
+                `slot-btn p-4 rounded-2xl border-2 font-black ${isSelected ? "selected shadow-lg border-satset-green" : "border-gray-100 bg-white text-gray-600 shadow-sm"}`;
             btn.textContent = `${time} WIB`;
             timeGrid.appendChild(btn);
         });
@@ -121,21 +162,200 @@
             list.appendChild(cardTmpl);
         });
 
-        if (orderData.addressType === "new") {
-            const inputContainer = template.getElementById('newAddressInputContainer');
-            inputContainer.classList.remove('hidden');
-            const input = template.getElementById('customAddressInput');
-            input.value = orderData.customAddress;
-        }
+        return template;
+    }
+
+    let mapInstance = null;
+    let markerInstance = null;
+
+    function renderNewAddressForm() {
+        const template = document.getElementById('tpl-step-21').content.cloneNode(true);
+
+        // Populate inputs from existing orderData if any
+        template.getElementById('locNameInput').value = orderData.newAddress.title;
+        template.getElementById('fullAddressArea').value = orderData.newAddress.address;
+
+        // Fetch Provinces immediately
+        fetchProvinces();
+
+        // Delay map initialization until after it's in the DOM
+        setTimeout(() => {
+            initNewAddressMap();
+        }, 300);
 
         return template;
+    }
+
+    function initNewAddressMap() {
+        const container = document.getElementById('newAddressMap');
+        if (!container) return;
+
+        if (mapInstance) {
+            mapInstance.remove();
+        }
+
+        mapInstance = L.map('newAddressMap').setView([orderData.newAddress.lat, orderData.newAddress.lng], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(mapInstance);
+
+        markerInstance = L.marker([orderData.newAddress.lat, orderData.newAddress.lng], {
+            draggable: true
+        }).addTo(mapInstance);
+
+        markerInstance.on('dragend', function(e) {
+            const pos = markerInstance.getLatLng();
+            orderData.newAddress.lat = pos.lat;
+            orderData.newAddress.lng = pos.lng;
+            reverseGeocode(pos.lat, pos.lng);
+        });
+    }
+
+    async function searchAddress(query) {
+        const suggestionsBox = document.getElementById('searchSuggestions');
+        if (!query || query.length < 3) {
+            suggestionsBox.innerHTML = '';
+            suggestionsBox.classList.add('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=id&limit=5`
+            );
+            const data = await response.json();
+
+            if (data.length > 0) {
+                suggestionsBox.innerHTML = data.map(item => `
+                    <div class="px-5 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0" onclick="onSelectSuggestion('${item.display_name}', ${item.lat}, ${item.lon})">
+                        <p class="text-sm font-bold text-gray-800 line-clamp-1">${item.display_name.split(',')[0]}</p>
+                        <p class="text-[10px] text-gray-400 line-clamp-1">${item.display_name}</p>
+                    </div>
+                `).join('');
+                suggestionsBox.classList.remove('hidden');
+            } else {
+                suggestionsBox.innerHTML =
+                    '<div class="px-5 py-3 text-sm text-gray-400">Tidak ada hasil ditemukan</div>';
+                suggestionsBox.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+        }
+    }
+
+    function onSelectSuggestion(display_name, lat, lon) {
+        const input = document.getElementById('locSearchInput');
+        const suggestionsBox = document.getElementById('searchSuggestions');
+
+        input.value = display_name;
+        suggestionsBox.classList.add('hidden');
+
+        orderData.newAddress.address = display_name;
+        orderData.newAddress.lat = lat;
+        orderData.newAddress.lng = lon;
+
+        document.getElementById('fullAddressArea').value = display_name;
+
+        if (mapInstance && markerInstance) {
+            const newPos = [lat, lon];
+            mapInstance.setView(newPos, 16);
+            markerInstance.setLatLng(newPos);
+        }
+
+        reverseGeocode(lat, lon);
+    }
+
+    async function reverseGeocode(lat, lng) {
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+            const data = await response.json();
+            if (data && data.display_name) {
+                document.getElementById('fullAddressArea').value = data.display_name;
+                orderData.newAddress.address = data.display_name;
+
+                // Try to auto-set administrative dropdowns if info available
+                // Note: Nominatim data structure varies, we'll try our best
+                console.log('Reverse geocode data:', data.address);
+            }
+        } catch (error) {
+            console.error('Reverse geocode error:', error);
+        }
+    }
+
+    function updateNewAddressData(key, value) {
+        orderData.newAddress[key] = value;
+    }
+
+    // Administrative Dropdowns Implementation
+    async function fetchProvinces() {
+        const res = await fetch('https://emsifa.github.io/api-wilayah-indonesia/api/provinces.json');
+        const data = await res.json();
+        const select = document.getElementById('provSelect');
+        if (!select) return;
+        select.innerHTML = '<option value="">Pilih Provinsi</option>' +
+            data.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    async function onProvinceChange(id) {
+        orderData.newAddress.province = id;
+        const reg = document.getElementById('regSelect');
+        const dist = document.getElementById('distSelect');
+        const vill = document.getElementById('villSelect');
+
+        reg.disabled = false;
+        reg.innerHTML = '<option value="">Memuat...</option>';
+        dist.disabled = true;
+        vill.disabled = true;
+
+        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/regencies/${id}.json`);
+        const data = await res.json();
+        reg.innerHTML = '<option value="">Pilih Kota</option>' +
+            data.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+    }
+
+    async function onRegencyChange(id) {
+        orderData.newAddress.regency = id;
+        const dist = document.getElementById('distSelect');
+        const vill = document.getElementById('villSelect');
+
+        dist.disabled = false;
+        dist.innerHTML = '<option value="">Memuat...</option>';
+        vill.disabled = true;
+
+        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/districts/${id}.json`);
+        const data = await res.json();
+        dist.innerHTML = '<option value="">Pilih Kecamatan</option>' +
+            data.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+    }
+
+    async function onDistrictChange(id) {
+        orderData.newAddress.district = id;
+        const vill = document.getElementById('villSelect');
+
+        vill.disabled = false;
+        vill.innerHTML = '<option value="">Memuat...</option>';
+
+        const res = await fetch(`https://emsifa.github.io/api-wilayah-indonesia/api/villages/${id}.json`);
+        const data = await res.json();
+        vill.innerHTML = '<option value="">Pilih Kelurahan</option>' +
+            data.map(v => `<option value="${v.id}">${v.name}</option>`).join('');
+    }
+
+    function onVillageChange(id) {
+        orderData.newAddress.village = id;
     }
 
     function renderPayment() {
         const template = document.getElementById('tpl-step-3').content.cloneNode(true);
         template.getElementById('summaryTime').innerHTML = `${formatDate(orderData.date)},<br/>${orderData.time} WIB`;
-        template.getElementById('summaryLocation').textContent = orderData.addressType === "default" ? "Rumah" : (
-            orderData.customAddress || "Alamat Baru");
+
+        let locText = "Rumah";
+        if (orderData.addressType === "new") {
+            locText = orderData.newAddress.title || orderData.newAddress.address || "Alamat Baru";
+        }
+
+        template.getElementById('summaryLocation').textContent = locText;
         return template;
     }
 
@@ -148,17 +368,38 @@
             alert("Silakan pilih tanggal terlebih dahulu secara satset!");
             return;
         }
+        if (currentStep === 2) {
+            if (orderData.addressType === 'new') {
+                currentStep = 21;
+                updateStep();
+                return;
+            }
+        }
+        if (currentStep === 21) {
+            if (!orderData.newAddress.address) {
+                alert("Silakan lengkapi alamat baru kamu!");
+                return;
+            }
+            currentStep = 3;
+            updateStep();
+            return;
+        }
         if (currentStep < 4) {
-            currentStep++;
+            if (currentStep === 2) currentStep = 3;
+            else currentStep++;
             updateStep();
         }
     }
 
     function prevStep() {
-        if (currentStep > 1) {
+        if (currentStep === 21) {
+            currentStep = 2;
+        } else if (currentStep === 3 && orderData.addressType === 'new') {
+            currentStep = 21;
+        } else if (currentStep > 1) {
             currentStep--;
-            updateStep();
         }
+        updateStep();
     }
 
     function handleBack() {
@@ -184,27 +425,29 @@
             content.style.opacity = '1';
 
             // Focus on input if it's the new address field
-            if (currentStep === 2 && orderData.addressType === 'new') {
-                document.getElementById('customAddressInput')?.focus();
+            if (currentStep === 21) {
+                document.getElementById('locNameInput')?.focus();
             }
         }, 150);
 
         const titles = {
             1: "Atur Jadwal",
             2: "Lokasi Layanan",
+            21: "Alamat Baru",
             3: "Pembayaran",
             4: "Selesai"
         };
         title.textContent = titles[currentStep];
 
-        if (currentStep < 4) {
-            progressBar.style.width = `${(currentStep / 3) * 100}%`;
+        if (currentStep < 4 || currentStep === 21) {
+            const progress = currentStep === 21 ? 2.5 : currentStep;
+            progressBar.style.width = `${(progress / 3) * 100}%`;
             document.getElementById('progressContainer').style.display = 'block';
         } else {
             document.getElementById('progressContainer').style.display = 'none';
         }
 
-        if (currentStep < 4) {
+        if (currentStep < 4 || currentStep === 21) {
             footerAction.style.display = 'block';
             const btnText = currentStep === 3 ? "KONFIRMASI PEMBAYARAN" : "LANJUTKAN";
             footerAction.querySelector('button').innerHTML = `
@@ -217,8 +460,8 @@
             footerAction.style.display = 'none';
         }
 
-        cancelBtn.style.display = currentStep < 4 ? 'flex' : 'none';
-        backBtn.style.display = currentStep === 4 ? 'none' : 'flex';
+        cancelBtn.style.display = (currentStep < 4 || currentStep === 21) ? 'flex' : 'none';
+        backBtn.style.display = (currentStep === 4 || currentStep === 1) ? 'none' : 'flex';
     }
 
     function selectDate(dateStr) {
@@ -227,14 +470,28 @@
     }
 
     function changeMonth(delta) {
-        viewMonth += delta;
-        if (viewMonth > 11) {
-            viewMonth = 0;
-            viewYear++;
-        } else if (viewMonth < 0) {
-            viewMonth = 11;
-            viewYear--;
+        let newMonth = viewMonth + delta;
+        let newYear = viewYear;
+
+        if (newMonth > 11) {
+            newMonth = 0;
+            newYear++;
+        } else if (newMonth < 0) {
+            newMonth = 11;
+            newYear--;
         }
+
+        // Restriction logic: don't go back past current month
+        const t = new Date();
+        const minYear = t.getFullYear();
+        const minMonth = t.getMonth();
+
+        if (newYear < minYear || (newYear === minYear && newMonth < minMonth)) {
+            return;
+        }
+
+        viewMonth = newMonth;
+        viewYear = newYear;
         updateStep();
     }
 

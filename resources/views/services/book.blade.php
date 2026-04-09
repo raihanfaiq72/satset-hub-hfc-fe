@@ -79,6 +79,7 @@
         @include('services.partials.step2_new_address')
         @include('services.partials.step3_payment')
         @include('services.partials.step4_success')
+        @include('services.partials.ranger_not_available')
 
         @include('services.scriptBottomBook')
         @include('services.partials.scriptNewAddress')

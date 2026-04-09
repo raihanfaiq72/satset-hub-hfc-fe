@@ -22,9 +22,13 @@ class ApiService
         $url = "http://localhost:8000/api/$endpoint";
 
         if (strtolower($method) === 'get') {
-            $response = Http::withToken($this->token)
-                ->accept('application/json')
-                ->get($url, $data);
+            $request = Http::withToken($this->token)->accept('application/json');
+
+            if (! empty($data)) {
+                $response = $request->withBody(json_encode($data), 'application/json')->send('GET', $url);
+            } else {
+                $response = $request->get($url);
+            }
         } else {
             $response = Http::withToken($this->token)
                 ->accept('application/json')
@@ -94,5 +98,10 @@ class ApiService
     public function getUserLocations($data)
     {
         return $this->request('get', 'lokasi', $data);
+    }
+
+    public function checkAvailableRanger($data)
+    {
+        return $this->request('post', 'order/check-available-ranger', $data);
     }
 }

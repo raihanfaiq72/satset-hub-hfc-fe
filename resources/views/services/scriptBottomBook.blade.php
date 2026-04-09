@@ -173,11 +173,60 @@
         return document.getElementById('tpl-step-4').content.cloneNode(true);
     }
 
-    function nextStep() {
-        if (currentStep === 1 && !orderData.date) {
-            alert("Silakan pilih tanggal terlebih dahulu secara satset!");
+    async function nextStep() {
+        if (currentStep === 1) {
+            if (!orderData.date) {
+                alert("Silakan pilih tanggal terlebih dahulu secara satset!");
+                return;
+            }
+
+            const btn = document.querySelector('#footerAction button');
+            const originalContent = btn.innerHTML;
+
+            try {
+                // Show loading state
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    MENGECEK RANGER...
+                `;
+
+                const response = await fetch("{{ route('services.checkRanger') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        tgl: orderData.date,
+                        jam: orderData.time
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success || !result.data || result.data.available_ranger <= 0) {
+                    showRangerModal();
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    return;
+                }
+
+                // Success, move to step 2
+                currentStep = 2;
+                updateStep();
+            } catch (error) {
+                console.error("Check ranger error:", error);
+                alert("Gagal mengecek ketersediaan ranger. Silakan coba lagi.");
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
             return;
         }
+
         if (currentStep === 2) {
             if (orderData.addressType === 'new') {
                 currentStep = 21;
@@ -267,8 +316,10 @@
 
         if (currentStep < 4 || currentStep === 21) {
             footerAction.style.display = 'block';
+            const btn = footerAction.querySelector('button');
+            btn.disabled = false;
             const btnText = currentStep === 3 ? "KONFIRMASI PEMBAYARAN" : "LANJUTKAN";
-            footerAction.querySelector('button').innerHTML = `
+            btn.innerHTML = `
                     ${btnText}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-2">
                         <polyline points="9 18 15 12 9 6"></polyline>
@@ -334,6 +385,14 @@
 
     function hideCancelModal() {
         document.getElementById('cancelModal').classList.add('hidden');
+    }
+
+    function showRangerModal() {
+        document.getElementById('rangerNotAvailableModal').classList.remove('hidden');
+    }
+
+    function hideRangerModal() {
+        document.getElementById('rangerNotAvailableModal').classList.add('hidden');
     }
 
     function confirmCancel() {

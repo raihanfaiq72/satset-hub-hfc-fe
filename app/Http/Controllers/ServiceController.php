@@ -50,9 +50,10 @@ class ServiceController extends Controller
 
     public function book($kode)
     {
-        $userLocations = $this->api->getUserLocations([
+        $data = [
             'user_id' => session('user_data')['id'] ?? null,
-        ]);
+        ];
+        $userLocations = $this->api->getUserLocations($data);
 
         return view('services.book', [
             'kode' => $kode,
@@ -96,6 +97,30 @@ class ServiceController extends Controller
             ]);
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
+        }
+    }
+
+    public function checkAvailableRanger(Request $request)
+    {
+        $request->validate([
+            'tgl' => 'required|date',
+            'jam' => 'required|date_format:H:i',
+        ]);
+
+        $data = $request->all();
+
+        try {
+            $response = $this->api->checkAvailableRanger($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $response,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

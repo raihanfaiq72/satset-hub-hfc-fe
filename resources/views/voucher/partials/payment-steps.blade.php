@@ -80,7 +80,7 @@
         <div class="w-full px-2 pt-4">
             <button onclick="simulateSuccess()"
                 class="w-full h-16 bg-satset-green rounded-3xl font-black text-white btn-scale shadow-lg shadow-satset-green/20">
-                SIMULASI BERHASIL
+                BERHASIL
             </button>
         </div>
     </div>

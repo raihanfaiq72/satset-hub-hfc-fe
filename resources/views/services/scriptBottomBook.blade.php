@@ -303,7 +303,7 @@
         }, 150);
 
         const titles = {
-            1: "Atur Jadwal",
+            1: "Pilih Waktu Pengerjaan",
             2: "Lokasi Layanan",
             21: "Alamat Baru",
             3: "Pembayaran",

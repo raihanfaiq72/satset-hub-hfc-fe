@@ -14,7 +14,7 @@ class VoucherController extends Controller
         $this->api = $api;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $voucherBatches = $this->api->getVoucherBatches();
         $vouchers = $this->api->getVouchers();
@@ -23,6 +23,13 @@ class VoucherController extends Controller
             'user_id' => session('user_data')['id'],
         ];
         $userPaymentVouchers = $this->api->getUserPaymentVouchers($userPaymentVouchersData);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'vouchers' => $userPaymentVouchers
+            ]);
+        }
 
         return view('voucher.index', compact('voucherBatches', 'vouchers', 'userPaymentVouchers'));
     }

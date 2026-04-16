@@ -31,6 +31,7 @@ Route::middleware(['api.auth'])->group(function () {
     Route::post('/service/{kode}/book/location', [ServiceController::class, 'storeLocation'])->name('services.book.location');
     Route::post('/service/check-ranger', [ServiceController::class, 'checkAvailableRanger'])->name('services.checkRanger');
     Route::post('/service/order/{kode}', [ServiceController::class, 'createNewOrder'])->name('services.createNewOrder');
+    Route::post('/service/voucher/use', [ServiceController::class, 'useVoucher'])->name('services.useVoucher');
     Route::get('/voucher', [VoucherController::class, 'index'])->name('voucher.index');
     Route::post('/voucher/buy', [VoucherController::class, 'buy'])->name('voucher.buy');
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');

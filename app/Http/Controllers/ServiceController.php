@@ -142,6 +142,15 @@ class ServiceController extends Controller
         try {
             $response = $this->api->createNewOrder($data);
 
+            // If payment_voucher_id is provided, redeem it now
+            if ($request->filled('payment_voucher_id')) {
+                $this->api->usePaymentVoucher([
+                    'user_id' => $data['idCustomer'],
+                    'voucher_id' => $request->voucher_id,
+                    'layanan_id' => $data['idLayanan'],
+                ]);
+            }
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
@@ -163,6 +172,31 @@ class ServiceController extends Controller
             }
 
             return back()->withErrors(['error' => 'Gagal membuat pesanan: '.$e->getMessage()])->withInput();
+        }
+    }
+
+    public function useVoucher(Request $request)
+    {
+        $request->validate([
+            'payment_voucher_id' => 'required',
+            'layanan_id' => 'required',
+        ]);
+
+        $data = $request->all();
+        $data['user_id'] = session('user_data')['id'];
+
+        try {
+            $response = $this->api->usePaymentVoucher($data);
+
+            return response()->json([
+                'success' => true,
+                'data' => $response,
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

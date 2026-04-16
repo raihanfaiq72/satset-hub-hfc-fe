@@ -24,15 +24,15 @@
             <!-- Main Content -->
             <main class="flex-1 pb-32 animate-fade-in">
                 <!-- Banner Hero -->
-                <div class="relative w-full h-[400px]">
-                    <div class="w-full h-76 bg-gray-60 flex items-center justify-center p-1">
+                <div class="relative w-full h-[400px] lg:h-[500px]">
+                    <div class="w-full h-full bg-gray-60 flex items-center justify-center p-1">
                         <img src="{{ $service['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}"
                             alt="Service Icon" class="h-full object-contain opacity-80">
                     </div>
                 </div>
 
                 <!-- Floating Profile/Info Card -->
-                <div class="px-5 -mt-24 relative z-10">
+                <div class="px-5 -mt-24 relative z-10 lg:max-w-4xl lg:mx-auto">
                     <div class="profile-card border-none bg-white rounded-[40px] overflow-hidden">
                         <div class="p-8 text-center">
                             <div class="flex justify-center mb-3">
@@ -50,14 +50,14 @@
                 </div>
 
                 <!-- Gallery Section -->
-                <div class="mt-10">
+                <div class="mt-10 lg:max-w-6xl lg:mx-auto">
                     <div class="px-6 flex items-center justify-between mb-5">
                         <h3 class="font-black text-gray-800 text-xl tracking-tight">Galeri Layanan</h3>
                         <button class="text-xs font-bold text-satset-green hover:underline">Lihat Semua</button>
                     </div>
-                    <div class="flex gap-4 overflow-x-auto px-6 pb-6 no-scrollbar">
+                    <div class="flex gap-4 overflow-x-auto px-6 pb-6 no-scrollbar lg:flex-wrap lg:justify-center">
                         @foreach ($galleryItems as $index => $item)
-                            <div class="gallery-item relative flex-shrink-0 w-36 h-36 rounded-[28px] overflow-hidden shadow-md cursor-pointer border-2 border-white"
+                            <div class="gallery-item relative flex-shrink-0 w-36 h-36 lg:w-48 lg:h-48 rounded-[28px] overflow-hidden shadow-md cursor-pointer border-2 border-white"
                                 onclick="openZoom({{ $index }})">
                                 @if ($item['type'] === 'image')
                                     <img src="{{ $item['path'] }}" alt="Gallery Image" class="w-full h-full object-cover">
@@ -89,7 +89,7 @@
                 </div>
 
                 <!-- About Section -->
-                <div class="px-6 mt-4 space-y-4">
+                <div class="px-6 mt-4 space-y-4 lg:max-w-4xl lg:mx-auto">
                     <h3 class="font-black text-gray-800 text-xl tracking-tight">Tentang Layanan</h3>
                     <p class="text-sm text-gray-500 leading-relaxed font-medium">
                         {!! $service['deskripsi'] !!}
@@ -98,8 +98,8 @@
             </main>
 
             <!-- Footer CTA -->
-            <div class="footer-cta fixed bottom-0 left-0 right-0 bg-white/90 p-6 border-t border-gray-100 z-20">
-                <a href="{{ route('services.book', $service['kode']) }}" class="block">
+            <div class="footer-cta fixed bottom-0 left-0 right-0 bg-white/90 p-6 border-t border-gray-100 z-20 lg:max-w-6xl lg:left-1/2 lg:-translate-x-1/2 lg:rounded-t-3xl">
+                <a href="{{ route('services.book', $service['kode']) }}" class="block lg:max-w-md lg:mx-auto">
                     <button
                         class="w-full h-16 bg-satset-green hover:bg-satset-dark text-white font-black text-lg rounded-3xl shadow-xl shadow-satset-green/30 uppercase tracking-widest transition-all btn-active">
                         Pesan Sekarang

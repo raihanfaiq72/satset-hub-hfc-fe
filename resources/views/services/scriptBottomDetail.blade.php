@@ -15,7 +15,7 @@ function openZoom(index){
     if(item.type === 'image'){
         container.innerHTML = `<img src="${item.path}" class="w-full h-full object-contain">`;
     } else if(item.type === 'video'){
-        container.innerHTML = `<video src="${item.path}" controls autoplay class="w-full h-full object-contain"></video>`;
+        container.innerHTML = `<video src="${item.path}" controls autoplay loop class="w-full h-full object-contain"></video>`;
     }
 
     modal.classList.remove('hidden');
@@ -24,6 +24,11 @@ function openZoom(index){
 
 function closeZoom(){
     const modal = document.getElementById('zoomModal');
+    const video = document.querySelector('#mediaContainer video');
+    if(video){
+        video.pause();
+        video.currentTime = 0;
+    }
     modal.classList.add('hidden');
     document.body.style.overflow = '';
     currentZoomIndex = null;

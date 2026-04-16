@@ -104,4 +104,9 @@ class ApiService
     {
         return $this->request('post', 'order/check-available-ranger', $data);
     }
+
+    public function createNewOrder($data)
+    {
+        return $this->request('post', 'order', $data);
+    }
 }

@@ -9,9 +9,13 @@
 
     const orderData = {
         date: "{{ session('p_date') }}" || todayStr,
-        time: "{{ session('p_time') }}" || "10:00",
+        time: "{{ session('p_time') }}" || null,
         serviceName: "{{ $service['keterangan'] ?? 'Layanan' }}",
         price: {{ $service['harga'] ?? 0 }},
+        idLayanan: {{ $service['id_layanan'] ?? 'null' }},
+        idSubLayanan: {{ $service['id'] ?? 'null' }},
+        idCustomer: {{ session('user_data')['id'] ?? 'null' }},
+        idLokasi: "{{ session('new_address_id') }}" || null,
         addressType: "{{ session('new_address_id', 'default') }}",
         addressName: "{{ session('new_address_name', 'Alamat Default') }}",
         customAddress: "",
@@ -180,8 +184,8 @@
 
     async function nextStep() {
         if (currentStep === 1) {
-            if (!orderData.date) {
-                alert("Silakan pilih tanggal terlebih dahulu secara satset!");
+            if (!orderData.date || !orderData.time) {
+                showAlert("Pilih Jadwal", "Silakan pilih Tanggal dan Jam pengerjaan terlebih dahulu agar satset!");
                 return;
             }
 
@@ -203,6 +207,7 @@
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': "{{ csrf_token() }}"
                     },
                     body: JSON.stringify({
@@ -225,7 +230,7 @@
                 updateStep();
             } catch (error) {
                 console.error("Check ranger error:", error);
-                alert("Gagal mengecek ketersediaan ranger. Silakan coba lagi.");
+                showAlert("Gagal", "Gagal mengecek ketersediaan ranger. Silakan coba lagi.", 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalContent;
             }
@@ -233,6 +238,11 @@
         }
 
         if (currentStep === 2) {
+            if (!orderData.idLokasi && orderData.addressType !== 'new') {
+                showAlert("Pilih Alamat", "Silakan pilih Lokasi Layanan kamu terlebih dahulu!");
+                return;
+            }
+
             if (orderData.addressType === 'new') {
                 currentStep = 21;
                 updateStep();
@@ -240,14 +250,11 @@
             }
         }
         if (currentStep === 21) {
-            // Trigger standard form submission (Non-AJAX)
             const form = document.getElementById('newAddressForm');
             if (form) {
-                // Ensure date/time are latest
                 document.getElementById('formDate').value = orderData.date;
                 document.getElementById('formTime').value = orderData.time;
 
-                // Validation check before submit
                 if (form.checkValidity()) {
                     document.getElementById('submitNewAddress').click();
                 } else {
@@ -256,6 +263,63 @@
             }
             return;
         }
+
+        if (currentStep === 3) {
+            const btn = document.querySelector('#footerAction button');
+            const originalContent = btn.innerHTML;
+
+            try {
+                // Show loading state
+                btn.disabled = true;
+                btn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    PROSES PESANAN...
+                `;
+
+                // CSR Order Creation
+                const tglPekerjaan = `${orderData.date} ${orderData.time}:00`;
+
+                const response = await fetch("{{ route('services.createNewOrder', $kode) }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        idCustomer: orderData.idCustomer,
+                        idLayanan: 1,
+                        tglPekerjaan: tglPekerjaan,
+                        idSubLayanan: orderData.idSubLayanan,
+                        idLokasi: orderData.idLokasi
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!result.success) {
+                    showAlert("Gagal", result.message || "Gagal membuat pesanan. Silakan coba lagi.", 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                    return;
+                }
+
+                // Success, move to step 4
+                currentStep = 4;
+                updateStep();
+            } catch (error) {
+                console.error("Submit order error:", error);
+                showAlert("Kesalahan", "Terjadi kesalahan teknis saat memproses pesanan.", 'error');
+                console.log(error);
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+            }
+            return;
+        }
+
         if (currentStep < 4) {
             if (currentStep === 2) currentStep = 3;
             else currentStep++;
@@ -377,6 +441,9 @@
     function selectAddress(type, name = "Alamat") {
         orderData.addressType = type;
         orderData.addressName = name;
+        if (type !== 'new') {
+            orderData.idLokasi = type;
+        }
         updateStep();
     }
 

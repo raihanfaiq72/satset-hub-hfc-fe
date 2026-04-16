@@ -80,6 +80,7 @@
         @include('services.partials.step3_payment')
         @include('services.partials.step4_success')
         @include('services.partials.ranger_not_available')
+        @include('services.partials.alert_modal')
 
         @include('services.scriptBottomBook')
         @include('services.partials.scriptNewAddress')

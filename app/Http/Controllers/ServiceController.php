@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\ApiService;
+use Exception;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
@@ -97,7 +98,7 @@ class ServiceController extends Controller
                 'p_time' => $request->time,
                 'p_step' => 2,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return back()->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
         }
     }
@@ -118,11 +119,50 @@ class ServiceController extends Controller
                 'success' => true,
                 'data' => $response,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function createNewOrder(Request $request, $kode)
+    {
+        $request->validate([
+            'idCustomer' => 'required',
+            'idLayanan' => 'required',
+            'tglPekerjaan' => 'required|date_format:Y-m-d H:i:s',
+            'idSubLayanan' => 'required',
+            'idLokasi' => 'required',
+        ]);
+
+        $data = $request->all();
+
+        try {
+            $response = $this->api->createNewOrder($data);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'data' => $response,
+                ]);
+            }
+
+            return redirect()->route('services.book', $kode)->with([
+                'success' => 'Pesanan berhasil dibuat!',
+                'p_step' => 4,
+                'order_id' => $response['id'] ?? null,
+            ]);
+        } catch (Exception $e) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 500);
+            }
+
+            return back()->withErrors(['error' => 'Gagal membuat pesanan: '.$e->getMessage()])->withInput();
         }
     }
 }

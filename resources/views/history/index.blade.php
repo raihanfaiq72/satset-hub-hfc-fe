@@ -18,39 +18,6 @@
                 </div>
             </header>
 
-            @php
-                // Dummy Data
-                $allOrders = [
-                    [
-                        'code' => 'HFC-2024-001',
-                        'service' => 'Home Cleaning',
-                        'job_type' => 'Deep Cleaning Package',
-                        'type' => 'Past',
-                    ],
-                    [
-                        'code' => 'HFC-2024-002',
-                        'service' => 'Aircon Service',
-                        'job_type' => 'Regular Wash & Freon Check',
-                        'type' => 'Past',
-                    ],
-                    [
-                        'code' => 'HFC-2024-003',
-                        'service' => 'Gardening',
-                        'job_type' => 'Grass Cutting & Trimming',
-                        'type' => 'Present',
-                    ],
-                    [
-                        'code' => 'HFC-2024-004',
-                        'service' => 'Pool Maintenance',
-                        'job_type' => 'Water PH Balancing',
-                        'type' => 'Future',
-                    ],
-                ];
-
-                $pastOrders = array_filter($allOrders, fn($o) => $o['type'] === 'Past');
-                $nowOrders = array_filter($allOrders, fn($o) => in_array($o['type'], ['Present', 'Future']));
-            @endphp
-
             <main class="flex-1 px-5 pb-24">
                 <div class="w-full">
                     <div class="grid w-full grid-cols-2 bg-gray-100 rounded-[24px] h-14 p-1.5 mt-3 mb-5 shadow-inner">
@@ -79,7 +46,7 @@
 
                         <!-- Current & Future Tab -->
                         <div id="content-current" class="space-y-4 hidden">
-                            @forelse ($nowOrders as $order)
+                            @forelse ($currentOrders as $order)
                                 @include('history.partials.order-card', ['order' => $order])
                             @empty
                                 <div class="py-20 text-center">

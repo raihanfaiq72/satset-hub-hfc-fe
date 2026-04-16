@@ -50,7 +50,7 @@
 
     <!-- Action Right -->
     <div class="shrink-0">
-        <a href="{{ route('history.show') }}">
+        <a href="{{ route('history.show', $order['id']) }}">
             <button
                 class="bg-satset-green text-white text-[10px] font-black uppercase tracking-widest px-4 py-2.5 rounded-xl shadow-lg shadow-satset-green/20 active:scale-95 transition-transform">
                 Detail

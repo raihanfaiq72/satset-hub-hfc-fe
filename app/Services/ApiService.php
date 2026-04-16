@@ -125,4 +125,24 @@ class ApiService
 
         return null;
     }
+
+    public function createNewOrder($data)
+    {
+        return $this->request('post', 'order', $data);
+    }
+
+    public function getOrderDetail($id)
+    {
+        return $this->request('get', "order/detail/$id");
+    }
+
+    public function usePaymentVoucher($data)
+    {
+        return $this->request('post', 'payment-vouchers/user-use', $data);
+    }
+
+    public function getPromoVouchers()
+    {
+        return $this->request('get', 'promo-vouchers');
+    }
 }

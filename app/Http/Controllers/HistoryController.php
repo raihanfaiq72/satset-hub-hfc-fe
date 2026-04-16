@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\ApiService;
 use Carbon\Carbon;
+use Exception;
 
 class HistoryController extends Controller
 {
@@ -14,37 +15,58 @@ class HistoryController extends Controller
         $this->api = $api;
     }
 
-    public function show()
+    public function show($id)
     {
-        // Dummy Data for Detail Page
-        $order = [
-            'id' => 12345,
-            'code' => 'HFC-2024-003',
-            'service' => 'Gardening',
-            'job_type' => 'Grass Cutting & Trimming',
-            'status' => 'Present',
-            'date' => '16 Apr 2026, 09:00',
-            'ranger' => [
-                'name' => 'Ahmad Ranger',
-                'rating' => 4.8,
-                'photo' => '👤',
-                'description' => 'Ahli pertamanan dengan pengalaman 5 tahun.'
-            ],
-            'price_details' => [
-                ['label' => 'Biaya Layanan', 'value' => 150000],
-                ['label' => 'Biaya Platform', 'value' => 5000],
-                ['label' => 'Diskon Voucher', 'value' => -10000],
-            ],
-            'total_price' => 145000,
-            'location' => 'Jl. Kebon Jeruk No. 12, Jakarta Barat',
-            'timeline' => [
-                ['time' => '09:00', 'desc' => 'Pesanan Diterima', 'done' => true],
-                ['time' => '09:15', 'desc' => 'Ranger Menuju Lokasi', 'done' => true],
-                ['time' => '09:30', 'desc' => 'Pekerjaan Dimulai', 'done' => false],
-            ]
-        ];
+        try {
+            // Fetch history and filter by ID since a dedicated detail endpoint is unavailable
+            $orders = $this->api->getOrderHistory([
+                'user_id' => session('user_data')['id'],
+            ]);
 
-        return view('history.detail', compact('order'));
+            $order = collect($orders)->firstWhere('id', $id);
+
+            if (! $order) {
+                return redirect()->route('history.index')->withErrors(['error' => 'Pesanan tidak ditemukan.']);
+            }
+
+            // Resolve service names for the detail view
+            $services = $this->api->getServices();
+            $serviceMap = [];
+            foreach ($services as $s) {
+                $serviceMap[$s['id']] = $s['keterangan'];
+                if (! empty($s['children'])) {
+                    foreach ($s['children'] as $c) {
+                        $serviceMap[$c['id']] = $c['keterangan'];
+                    }
+                }
+            }
+
+            // Map API response to view format
+            $mappedOrder = [
+                'id' => $order['id'],
+                'code' => data_get($order, 'inquiry.kodeInquiry', 'ORD-'.$order['id']),
+                'service' => $serviceMap[$order['idLayanan']] ?? 'Layanan #'.$order['idLayanan'],
+                'job_type' => $serviceMap[$order['idSubLayanan']] ?? 'Jenis Pekerjaan',
+                'status' => $this->getStatusLabel(data_get($order, 'status')),
+                'date' => data_get($order, 'tglPekerjaan')
+                    ? Carbon::parse($order['tglPekerjaan'])->translatedFormat('d M Y, H:i').' WIB'
+                    : Carbon::parse($order['tglOrder'])->translatedFormat('d M Y, H:i').' WIB',
+                'payment_method' => data_get($order, 'payment_method'),
+                'price_details' => [
+                    ['label' => 'Biaya Layanan', 'value' => (float) data_get($order, 'inquiry.finalPrice', 0)],
+                    ['label' => 'Biaya Platform', 'value' => 5000],
+                ],
+                'total_price' => (float) data_get($order, 'inquiry.finalPrice', 0) + 5000,
+                'location' => 'Jl. Telomoyo No. 6, Kelurahan Wonotingal, Kecamatan Candisari, Kota Semarang, Provinsi Jawa Tengah',
+                'timeline' => [
+                    ['time' => Carbon::parse($order['tglOrder'])->format('H:i'), 'desc' => 'Pesanan Dibuat', 'done' => true],
+                ],
+            ];
+
+            return view('history.detail', ['order' => $mappedOrder]);
+        } catch (Exception $e) {
+            return redirect()->route('history.index')->withErrors(['error' => 'Gagal mengambil detail pesanan: '.$e->getMessage()]);
+        }
     }
 
     public function index()
@@ -54,32 +76,44 @@ class HistoryController extends Controller
                 'user_id' => session('user_data')['id'],
             ]);
 
+            // Optional: Fetch services to get names
+            $services = $this->api->getServices();
+            $serviceMap = [];
+            foreach ($services as $s) {
+                $serviceMap[$s['id']] = $s['keterangan'];
+                if (! empty($s['children'])) {
+                    foreach ($s['children'] as $c) {
+                        $serviceMap[$c['id']] = $c['keterangan'];
+                    }
+                }
+            }
+
             $pastOrders = [];
             $currentOrders = [];
 
             foreach ($orders as $order) {
-                $code = data_get($order, 'inquiry.kodeInquiry', 'ORD-' . $order['id']);
-                $service = data_get($order, 'inquiry.kodeInquiry')
-                    ? 'Order ' . data_get($order, 'inquiry.kodeInquiry')
-                    : 'Layanan #' . data_get($order, 'idLayanan');
-                $vendor = data_get($order, 'payment_method', '-');
-                $date = data_get($order, 'tglPekerjaan')
-                    ? Carbon::parse($order['tglPekerjaan'])->translatedFormat('d M Y H:i')
-                    : data_get($order, 'tglOrder');
-                $price = data_get($order, 'inquiry.finalPrice', 0) ?: 0;
-                $statusText = $this->getStatusLabel(data_get($order, 'status'));
+                $statusNum = data_get($order, 'status');
+                $type = 'Past';
+                if ($statusNum == 63) {
+                    $type = 'Present';
+                }
+                if ($statusNum == 62) {
+                    $type = 'Future';
+                }
 
                 $mappedOrder = [
                     'id' => $order['id'],
-                    'code' => $code,
-                    'service' => $service,
-                    'vendor' => $vendor,
-                    'date' => $date,
-                    'price' => $price,
-                    'status' => $statusText,
+                    'code' => data_get($order, 'inquiry.kodeInquiry', 'ORD-'.$order['id']),
+                    'service' => $serviceMap[$order['idLayanan']] ?? 'Layanan #'.$order['idLayanan'],
+                    'job_type' => $serviceMap[$order['idSubLayanan']] ?? 'Jenis Pekerjaan',
+                    'date' => data_get($order, 'tglPekerjaan')
+                        ? Carbon::parse($order['tglPekerjaan'])->translatedFormat('d M Y, H:i').' WIB'
+                        : Carbon::parse($order['tglOrder'])->translatedFormat('d M Y, H:i').' WIB',
+                    'status' => $this->getStatusLabel($statusNum),
+                    'type' => $type,
                 ];
 
-                if (in_array(data_get($order, 'status'), [64], true)) {
+                if ($type === 'Past') {
                     $pastOrders[] = $mappedOrder;
                 } else {
                     $currentOrders[] = $mappedOrder;
@@ -87,17 +121,17 @@ class HistoryController extends Controller
             }
 
             return view('history.index', compact('pastOrders', 'currentOrders'));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
     }
 
     protected function getStatusLabel($status)
     {
-        return match ($status) {
+        return match ((int) $status) {
             64 => 'Selesai',
-            63 => 'Dalam Proses',
-            62 => 'Menunggu Konfirmasi',
+            63 => 'Pengerjaan',
+            62 => 'Dijadwalkan',
             default => 'Diproses',
         };
     }

@@ -109,4 +109,9 @@ class ApiService
     {
         return $this->request('post', 'order', $data);
     }
+
+    public function getOrderDetail($id)
+    {
+        return $this->request('get', "order/detail/$id");
+    }
 }

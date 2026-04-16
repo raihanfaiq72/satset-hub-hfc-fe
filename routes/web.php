@@ -34,6 +34,6 @@ Route::middleware(['api.auth'])->group(function () {
     Route::get('/voucher', [VoucherController::class, 'index'])->name('voucher.index');
     Route::post('/voucher/buy', [VoucherController::class, 'buy'])->name('voucher.buy');
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
-    Route::get('/history/detail', [HistoryController::class, 'show'])->name('history.show');
+    Route::get('/history/detail/{id}', [HistoryController::class, 'show'])->name('history.show');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
 });

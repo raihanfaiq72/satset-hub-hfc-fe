@@ -168,6 +168,98 @@
         </div>
 
         @include('dashboard.scriptBottom')
+
+        {{-- Promo Modal --}}
+        @if($promoModal)
+        <div id="promoModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="closePromoModal()"></div>
+            <div class="relative bg-white rounded-[32px] shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-zoom-in">
+                {{-- Close Button --}}
+                @if($promoModal['show_close_button'] ?? true)
+                <button onclick="closePromoModal()" class="absolute top-4 right-4 z-10 w-10 h-10 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center text-gray-600 transition-all">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                @endif
+
+                {{-- Content --}}
+                <div class="p-6">
+                    {{-- Video or Image --}}
+                    @if(!empty($promoModal['video_url']))
+                    <div class="w-full aspect-[3/4] rounded-2xl overflow-hidden mb-5 bg-gray-100">
+                        <video src="{{ $promoModal['video_url'] }}" controls autoplay loop playsinline class="w-full h-full object-contain bg-black"></video>
+                    </div>
+                    @elseif(!empty($promoModal['gambar']))
+                    <div class="w-full aspect-video rounded-2xl overflow-hidden mb-5 bg-gray-100">
+                        <img src="{{ $promoModal['gambar'] }}" alt="{{ $promoModal['judul'] }}" class="w-full h-full object-cover">
+                    </div>
+                    @endif
+
+                    {{-- Title --}}
+                    <h2 class="text-2xl font-black text-gray-900 mb-3">{{ $promoModal['judul'] }}</h2>
+
+                    {{-- Content (HTML) --}}
+                    <div class="prose prose-sm text-gray-600 mb-6">
+                        {!! $promoModal['konten'] !!}
+                    </div>
+
+                    {{-- Buttons --}}
+                    <div class="flex flex-col gap-3">
+                        @if(!empty($promoModal['primary_button_text']))
+                        <a href="{{ $promoModal['primary_button_link'] ?? '#' }}" target="_blank"
+                           class="w-full py-4 rounded-2xl font-black text-center text-white transition-all hover:opacity-90"
+                           style="background-color: {{ $promoModal['primary_button_color'] ?? '#007bff' }}">
+                            {{ $promoModal['primary_button_text'] }}
+                        </a>
+                        @endif
+
+                        @if(!empty($promoModal['secondary_button_text']))
+                        <a href="{{ $promoModal['secondary_button_link'] ?? '#' }}" target="_blank"
+                           class="w-full py-4 rounded-2xl font-bold text-center transition-all hover:opacity-80 border-2"
+                           style="color: {{ $promoModal['secondary_button_color'] ?? '#6c757d' }}; border-color: {{ $promoModal['secondary_button_color'] ?? '#6c757d' }}">
+                            {{ $promoModal['secondary_button_text'] }}
+                        </a>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function openPromoModal() {
+                const modal = document.getElementById('promoModal');
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closePromoModal() {
+                const modal = document.getElementById('promoModal');
+                const video = modal.querySelector('video');
+                if(video) {
+                    video.pause();
+                    video.currentTime = 0;
+                }
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+
+            // Auto open on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(function() {
+                    openPromoModal();
+
+                    // Auto close if enabled
+                    @if(($promoModal['auto_close'] ?? false) && ($promoModal['auto_close_delay'] ?? 0) > 0)
+                    setTimeout(function() {
+                        closePromoModal();
+                    }, {{ ($promoModal['auto_close_delay'] ?? 0) * 1000 }});
+                    @endif
+                }, 500);
+            });
+        </script>
+        @endif
     </body>
 
     </html>
@@ -175,6 +267,21 @@
 
 @push('style')
     <style>
+        /* Promo Modal Animation */
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+        .animate-zoom-in {
+            animation: zoomIn 0.4s ease-out;
+        }
+
         /* Firefox compatibility fixes */
         @-moz-document url-prefix() {
 

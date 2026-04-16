@@ -38,11 +38,20 @@ class DashboardController extends Controller
                 }
             }
 
+            // Get active promo modal
+            $promoModal = null;
+            try {
+                $promoModal = $this->api->getActivePromoModal();
+            } catch (\Exception $e) {
+                // Silent fail - modal tidak akan ditampilkan jika error
+            }
+
             return view('dashboard.index', [
                 'banners' => $banners,
                 'user' => session('user_data'),
                 'serviceParents' => $serviceParents,
-                'allChildren' => $allChildren
+                'allChildren' => $allChildren,
+                'promoModal' => $promoModal,
             ]);
 
         } catch (\Exception $e) {

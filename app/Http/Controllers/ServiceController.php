@@ -32,8 +32,17 @@ class ServiceController extends Controller
         }
         unset($parent);
 
+        // Get active promo modal
+        $promoModal = null;
+        try {
+            $promoModal = $this->api->getActivePromoModal();
+        } catch (\Exception $e) {
+            // Silent fail - modal tidak akan ditampilkan jika error
+        }
+
         return view('services.index', [
             'serviceParents' => array_values($serviceParents),
+            'promoModal' => $promoModal,
         ]);
     }
 

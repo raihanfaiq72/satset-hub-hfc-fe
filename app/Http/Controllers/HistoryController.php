@@ -14,6 +14,39 @@ class HistoryController extends Controller
         $this->api = $api;
     }
 
+    public function show()
+    {
+        // Dummy Data for Detail Page
+        $order = [
+            'id' => 12345,
+            'code' => 'HFC-2024-003',
+            'service' => 'Gardening',
+            'job_type' => 'Grass Cutting & Trimming',
+            'status' => 'Present',
+            'date' => '16 Apr 2026, 09:00',
+            'ranger' => [
+                'name' => 'Ahmad Ranger',
+                'rating' => 4.8,
+                'photo' => '👤',
+                'description' => 'Ahli pertamanan dengan pengalaman 5 tahun.'
+            ],
+            'price_details' => [
+                ['label' => 'Biaya Layanan', 'value' => 150000],
+                ['label' => 'Biaya Platform', 'value' => 5000],
+                ['label' => 'Diskon Voucher', 'value' => -10000],
+            ],
+            'total_price' => 145000,
+            'location' => 'Jl. Kebon Jeruk No. 12, Jakarta Barat',
+            'timeline' => [
+                ['time' => '09:00', 'desc' => 'Pesanan Diterima', 'done' => true],
+                ['time' => '09:15', 'desc' => 'Ranger Menuju Lokasi', 'done' => true],
+                ['time' => '09:30', 'desc' => 'Pekerjaan Dimulai', 'done' => false],
+            ]
+        ];
+
+        return view('history.detail', compact('order'));
+    }
+
     public function index()
     {
         try {

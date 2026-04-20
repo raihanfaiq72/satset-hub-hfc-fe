@@ -141,8 +141,13 @@ class ApiService
         return $this->request('post', 'payment-vouchers/user-use', $data);
     }
 
-    public function getPromoVouchers()
+    public function getUserPromoVouchers($data)
     {
-        return $this->request('get', 'promo-vouchers');
+        return $this->request('get', 'promo-vouchers/user', $data);
+    }
+
+    public function scanAndTransferVoucher($data)
+    {
+        return $this->request('post', 'qr-code/scan-and-transfer', $data);
     }
 }

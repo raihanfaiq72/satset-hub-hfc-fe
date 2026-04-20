@@ -179,7 +179,7 @@
 
         // Handle Background & Icon Visibility
         const hasImage = voucher.batch_info.voucher_image && voucher.batch_info.voucher_image !== '';
-        
+
         if (hasImage) {
             if (imageBgEl) {
                 imageBgEl.src = voucher.batch_info.voucher_image;
@@ -224,6 +224,25 @@
 
         if (descEl) descEl.textContent = voucher.batch_info.voucher_description;
 
+        // Setup Gift Button
+        const btnGift = page.querySelector('#btn-gift-voucher');
+        if (btnGift) {
+            btnGift.onclick = () => {
+                const voucherType = voucher.batch_info.type || 'payment'; // Fallback to payment
+                window.location.href =
+                    `{{ route('voucher.giftScan') }}?voucher_id=${voucher.id}&voucher_type=${voucherType}`;
+            };
+        }
+
+        // Setup Use Button
+        const btnUse = page.querySelector('#btn-use-voucher');
+        if (btnUse) {
+            btnUse.onclick = () => {
+                // Handle use voucher logic here if needed
+                alert('Fungsi gunakan voucher sedang dikembangkan.');
+            };
+        }
+
         // Transitions
         document.getElementById('voucherPage').classList.add('hidden');
         page.classList.remove('hidden');
@@ -237,5 +256,17 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         switchTab('mine');
+
+        // Header shadow on scroll
+        // const header = document.getElementById('mainHeader');
+        // window.addEventListener('scroll', () => {
+        //     if (window.scrollY > 10) {
+        //         header.classList.add('shadow-md');
+        //         header.classList.remove('shadow-sm/0');
+        //     } else {
+        //         header.classList.remove('shadow-md');
+        //         header.classList.add('shadow-sm/0');
+        //     }
+        // });
     });
 </script>

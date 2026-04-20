@@ -27,7 +27,7 @@ class VoucherController extends Controller
         if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'vouchers' => $userPaymentVouchers
+                'vouchers' => $userPaymentVouchers,
             ]);
         }
 
@@ -55,6 +55,48 @@ class VoucherController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function giftScan(Request $request)
+    {
+        $userData = session('user_data');
+        if (!$userData) {
+            return redirect()->route('login');
+        }
+
+        $data = ['user_id' => $userData['id']];
+        $paymentVouchers = $this->api->getUserPaymentVouchers($data);
+        $promoVouchers = $this->api->getUserPromoVouchers($data);
+
+        $selectedVoucherId = $request->query('voucher_id');
+        $selectedVoucherType = $request->query('voucher_type');
+
+        return view('voucher.gifting.scan', compact('paymentVouchers', 'promoVouchers', 'selectedVoucherId', 'selectedVoucherType'));
+    }
+
+    public function processGift(Request $request)
+    {
+        try {
+            $data = [
+                'qr_code' => $request->input('qr_code'),
+                'voucher_type' => $request->input('voucher_type'),
+                'voucher_id' => $request->input('voucher_id'),
+                'otp' => $request->input('otp'),
+            ];
+
+            $result = $this->api->scanAndTransferVoucher($data);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Voucher berhasil dikirim!',
+                'data' => $result
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
             ], 500);
         }
     }

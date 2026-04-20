@@ -1,7 +1,8 @@
 <!-- Voucher Detail Overaly -->
-<div id="voucherDetailPage" class="fixed inset-0 z-[60] flex flex-col bg-gray-50 hidden overflow-y-auto">
+<div id="voucherDetailPage" class="fixed inset-0 z-[60] flex flex-col bg-gray-50 hidden overflow-y-auto"
+    style="-webkit-overflow-scrolling: touch; scroll-behavior: smooth;">
     <!-- Header -->
-    <header class="bg-white px-5 py-6 flex items-center gap-4 sticky top-0 z-50 shadow-sm">
+    <header class="bg-white px-5 py-4 flex items-center gap-4 sticky top-0 z-50 shadow-sm">
         <button onclick="closeVoucherDetail()"
             class="h-10 w-10 flex items-center justify-center rounded-full active:bg-gray-100 transition-colors">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -14,7 +15,7 @@
     </header>
 
     <!-- Content -->
-    <main class="flex-1 pb-32">
+    <main class="flex-1 pb-48">
         <!-- Hero Visual -->
         <div class="px-5 pt-8 pb-4">
             <div class="relative w-full aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl group">
@@ -104,10 +105,15 @@
     </main>
 
     <!-- Fixed Footer -->
-    <div class="fixed bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-20">
-        <button
-            class="w-full h-16 bg-satset-green rounded-3xl font-black text-white btn-scale shadow-lg shadow-satset-green/20 flex items-center justify-center gap-3">
-            GUNAKAN VOUCHER SEKARANG
+    <div
+        class="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-20 flex flex-col gap-3">
+        <button id="btn-use-voucher"
+            class="w-full h-16 bg-satset-green rounded-3xl font-black text-white btn-scale shadow-lg shadow-satset-green/20 flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+            Gunakan Sekarang
+        </button>
+        <button id="btn-gift-voucher"
+            class="w-full h-16 bg-white border-2 border-satset-green rounded-3xl font-black text-satset-green btn-scale flex items-center justify-center gap-3 uppercase tracking-widest text-sm">
+            Jadikan Hadiah
         </button>
     </div>
 </div>

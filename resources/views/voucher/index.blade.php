@@ -6,24 +6,35 @@
         <!-- Main Voucher Page -->
         <div id="voucherPage" class="flex min-h-screen flex-col">
             <!-- Header -->
-            <header class="bg-white px-5 py-8 flex items-center justify-between">
+            <header
+                class="bg-white px-5 py-6 flex items-center justify-between sticky top-0 z-40 shadow-sm/0 transition-shadow duration-300"
+                id="mainHeader">
                 <h1 class="text-3xl font-black text-gray-800 italic uppercase tracking-tighter">Voucher</h1>
-                <div class="h-10 w-10 bg-satset-green/10 rounded-full flex items-center justify-center text-satset-green">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 9a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9Z"></path>
-                        <path d="M9 9l3 3-3 3"></path>
-                        <path d="M15 9l-3 3 3 3"></path>
-                    </svg>
+                <div class="flex items-center gap-3">
+                    <a href="{{ route('dashboard') }}"
+                        class="h-10 w-10 bg-satset-green/10 rounded-full flex items-center justify-center text-satset-green transition-all hover:bg-satset-green/20 active:scale-95 focus:outline-none">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg" stroke="#21ada8">
+                            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                            <g id="SVGRepo_iconCarrier">
+                                <path fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M5 8a1 1 0 0 1-2 0V5.923c0-.76.082-1.185.319-1.627.223-.419.558-.754.977-.977C4.738 3.082 5.162 3 5.923 3H8a1 1 0 0 1 0 2H5.923c-.459 0-.57.022-.684.082a.364.364 0 0 0-.157.157c-.06.113-.082.225-.082.684V8zm3 11a1 1 0 1 1 0 2H5.923c-.76 0-1.185-.082-1.627-.319a2.363 2.363 0 0 1-.977-.977C3.082 19.262 3 18.838 3 18.077V16a1 1 0 1 1 2 0v2.077c0 .459.022.57.082.684.038.07.087.12.157.157.113.06.225.082.684.082H8zm7-15a1 1 0 0 0 1 1h2.077c.459 0 .57.022.684.082.07.038.12.087.157.157.06.113.082.225.082.684V8a1 1 0 1 0 2 0V5.923c0-.76-.082-1.185-.319-1.627a2.363 2.363 0 0 0-.977-.977C19.262 3.082 18.838 3 18.077 3H16a1 1 0 0 0-1 1zm4 12a1 1 0 1 1 2 0v2.077c0 .76-.082 1.185-.319 1.627a2.364 2.364 0 0 1-.977.977c-.442.237-.866.319-1.627.319H16a1 1 0 1 1 0-2h2.077c.459 0 .57-.022.684-.082a.363.363 0 0 0 .157-.157c.06-.113.082-.225.082-.684V16zM3 11a1 1 0 1 0 0 2h18a1 1 0 1 0 0-2H3z"
+                                    fill="#21ada8">
+                                </path>
+                            </g>
+                        </svg>
+                    </a>
                 </div>
             </header>
 
             <!-- Main Content -->
-            <main class="flex-1 px-5 pb-24">
+            <main class="flex-1 pb-24">
                 <!-- Tabs -->
                 <div class="w-full">
                     <!-- Tab List -->
-                    <div class="grid w-full grid-cols-2 bg-gray-100 rounded-[24px] h-14 p-1.5 mb-8 shadow-inner">
+                    <div
+                        class="grid w-full grid-cols-2 bg-white h-16 p-2 mb-5 sticky top-[88px] z-30 border-b border-gray-100">
                         <button onclick="switchTab('mine')" id="tab-mine"
                             class="tab-btn rounded-[20px] font-black text-[10px] uppercase tracking-widest active">
                             VOUCHER SAYA
@@ -35,7 +46,7 @@
                     </div>
 
                     <!-- Tab Content -->
-                    <div id="tabContent" class="tab-content">
+                    <div id="tabContent" class="tab-content px-5">
                         <!-- My Vouchers Tab -->
                         <div id="content-mine" class="space-y-4">
                             <!-- Payment Voucher -->
@@ -361,9 +372,9 @@
         }
 
         .tab-btn.active {
-            background-color: white;
-            color: #2d7a6e;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            background-color: rgb(45, 122, 110);
+            color: white;
+            box-shadow: 0 4px 12px rgba(33, 173, 168, 0.3);
         }
 
         /* Quantity button */

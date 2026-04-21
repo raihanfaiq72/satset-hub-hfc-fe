@@ -250,7 +250,7 @@
 
     function closeVoucherDetail() {
         document.getElementById('voucherDetailPage').classList.add('hidden');
-        document.getElementById('voucherPage').classList.remove('hidden');
+        document.body.style.overflow = 'auto';
     }
 
     // Initialize

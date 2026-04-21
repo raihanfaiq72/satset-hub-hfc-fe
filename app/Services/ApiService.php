@@ -150,4 +150,9 @@ class ApiService
     {
         return $this->request('post', 'qr-code/scan-and-transfer', $data);
     }
+
+    public function generateReceiveQr($data)
+    {
+        return $this->request('post', 'qr-code/generate-receive', $data);
+    }
 }

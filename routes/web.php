@@ -34,8 +34,10 @@ Route::middleware(['api.auth'])->group(function () {
     Route::post('/service/voucher/use', [ServiceController::class, 'useVoucher'])->name('services.useVoucher');
     Route::get('/voucher', [VoucherController::class, 'index'])->name('voucher.index');
     Route::post('/voucher/buy', [VoucherController::class, 'buy'])->name('voucher.buy');
+    Route::get('/voucher/receive', [VoucherController::class, 'receive'])->name('voucher.receive');
     Route::get('/voucher/gift-scan', [VoucherController::class, 'giftScan'])->name('voucher.giftScan');
     Route::post('/voucher/gift-process', [VoucherController::class, 'processGift'])->name('voucher.giftProcess');
+    Route::post('/voucher/generate-receive-qr', [VoucherController::class, 'generateReceiveQr'])->name('voucher.generateReceiveQr');
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     Route::get('/history/detail/{id}', [HistoryController::class, 'show'])->name('history.show');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');

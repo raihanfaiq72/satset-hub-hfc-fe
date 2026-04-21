@@ -10,8 +10,8 @@
                 class="bg-white px-5 py-6 flex items-center justify-between sticky top-0 z-40 shadow-sm/0 transition-shadow duration-300"
                 id="mainHeader">
                 <h1 class="text-3xl font-black text-gray-800 italic uppercase tracking-tighter">Voucher</h1>
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('dashboard') }}"
+                <div class="flex items-center gap-2">
+                    <a href="{{ route('voucher.receive') }}"
                         class="h-10 w-10 bg-satset-green/10 rounded-full flex items-center justify-center text-satset-green transition-all hover:bg-satset-green/20 active:scale-95 focus:outline-none">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg" stroke="#21ada8">
@@ -169,8 +169,8 @@
             @include('components.bottomNav')
         </div>
 
-        @include('voucher.partials.payment-steps')
         @include('voucher.partials.voucher-detail')
+        {{-- @include('voucher.partials.payment-modal') --}}
 
         <!-- Payment Modal -->
         <div id="paymentModal" class="fixed inset-0 z-50 flex flex-col bg-white hidden">

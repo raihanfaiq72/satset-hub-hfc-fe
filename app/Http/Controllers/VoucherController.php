@@ -59,6 +59,11 @@ class VoucherController extends Controller
         }
     }
 
+    public function receive()
+    {
+        return view('voucher.receive');
+    }
+
     public function giftScan(Request $request)
     {
         $userData = session('user_data');
@@ -96,6 +101,28 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function generateReceiveQr(Request $request)
+    {
+        $userData = session('user_data');
+        if (!$userData) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $data = ['user_id' => $userData['id']];
+            $response = $this->api->generateReceiveQr($data);
+            return response()->json([
+                'status' => 'success',
+                'data' => $response
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
                 'message' => $e->getMessage()
             ], 500);
         }

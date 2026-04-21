@@ -2,34 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiService;
+use App\Services\OrderService;
+use App\Services\PromotionMaterialService;
 
 class DashboardController extends Controller
 {
-    protected $api;
+    protected $promotionMaterialService;
 
-    public function __construct(ApiService $api)
+    protected $orderService;
+
+    public function __construct(PromotionMaterialService $promotionMaterialService,
+        OrderService $orderService)
     {
-        $this->api = $api;
+        $this->promotionMaterialService = $promotionMaterialService;
+        $this->orderService = $orderService;
     }
 
     public function index()
     {
         try {
-            $banners = $this->api->getBanners();
-            $services = $this->api->getServices();
+            $banners = $this->promotionMaterialService->getBanners();
+            $services = $this->orderService->getServices();
 
-            usort($banners, function($a, $b) {
+            usort($banners, function ($a, $b) {
                 return $a['urutan'] <=> $b['urutan'];
             });
 
-            $serviceParents = array_values(array_filter($services, function($item) {
+            $serviceParents = array_values(array_filter($services, function ($item) {
                 return $item['idParent'] == 0 && $item['release_status'] === 'published';
             }));
 
             $allChildren = [];
             foreach ($services as $service) {
-                if (!empty($service['children'])) {
+                if (! empty($service['children'])) {
                     foreach ($service['children'] as $child) {
                         if ($child['release_status'] === 'published') {
                             $allChildren[] = $child;
@@ -41,7 +46,7 @@ class DashboardController extends Controller
             // Get active promo modal
             $promoModal = null;
             try {
-                $promoModal = $this->api->getActivePromoModal();
+                $promoModal = $this->promotionMaterialService->getActivePromoModal();
             } catch (\Exception $e) {
                 // Silent fail - modal tidak akan ditampilkan jika error
             }

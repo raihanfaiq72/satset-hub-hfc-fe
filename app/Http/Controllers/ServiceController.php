@@ -2,22 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiService;
+use App\Services\OrderService;
+use App\Services\PromotionMaterialService;
+use App\Services\VoucherService;
 use Exception;
 use Illuminate\Http\Request;
 
 class ServiceController extends Controller
 {
-    protected $api;
+    protected $orderService;
 
-    public function __construct(ApiService $api)
-    {
-        $this->api = $api;
+    protected $promotionMaterialService;
+
+    protected $voucherService;
+
+    public function __construct(
+        OrderService $orderService,
+        PromotionMaterialService $promotionMaterialService,
+        VoucherService $voucherService
+    ) {
+        $this->orderService = $orderService;
+        $this->promotionMaterialService = $promotionMaterialService;
+        $this->voucherService = $voucherService;
     }
 
     public function index()
     {
-        $services = $this->api->getServices();
+        $services = $this->orderService->getServices();
 
         $serviceParents = array_filter($services, function ($service) {
             return $service['release_status'] === 'published';
@@ -36,8 +47,8 @@ class ServiceController extends Controller
         // Get active promo modal
         $promoModal = null;
         try {
-            $promoModal = $this->api->getActivePromoModal();
-        } catch (\Exception $e) {
+            $promoModal = $this->promotionMaterialService->getActivePromoModal();
+        } catch (Exception $e) {
             // Silent fail - modal tidak akan ditampilkan jika error
         }
 
@@ -49,7 +60,7 @@ class ServiceController extends Controller
 
     public function show($kode)
     {
-        $service = $this->api->getServiceDetail($kode);
+        $service = $this->orderService->getServiceDetail($kode);
 
         // echo json_encode($service);
 
@@ -63,8 +74,8 @@ class ServiceController extends Controller
         $data = [
             'user_id' => session('user_data')['id'] ?? null,
         ];
-        $userLocations = $this->api->getUserLocations($data);
-        $service = $this->api->getServiceDetail($kode);
+        $userLocations = $this->orderService->getUserLocations($data);
+        $service = $this->orderService->getServiceDetail($kode);
 
         return view('services.book', [
             'kode' => $kode,
@@ -85,7 +96,7 @@ class ServiceController extends Controller
             'idRegencies' => 'required',
             'idDistricts' => 'required',
             'idVillages' => 'required',
-            'namaPIC' => 'required',
+            'namorderServiceC' => 'required',
             'noHpPIC' => 'required',
             'jenisBangunan' => 'required',
         ]);
@@ -98,7 +109,7 @@ class ServiceController extends Controller
         }
 
         try {
-            $response = $this->api->createLokasi($data);
+            $response = $this->orderService->createLokasi($data);
 
             return redirect()->route('services.book', $kode)->with([
                 'success' => 'Lokasi berhasil ditambahkan!',
@@ -122,7 +133,7 @@ class ServiceController extends Controller
         $data = $request->all();
 
         try {
-            $response = $this->api->checkAvailableRanger($data);
+            $response = $this->orderService->checkAvailableRanger($data);
 
             return response()->json([
                 'success' => true,
@@ -149,11 +160,11 @@ class ServiceController extends Controller
         $data = $request->all();
 
         try {
-            $response = $this->api->createNewOrder($data);
+            $response = $this->orderService->createNewOrder($data);
 
             // If payment_voucher_id is provided, redeem it now
             if ($request->filled('payment_voucher_id')) {
-                $this->api->usePaymentVoucher([
+                $this->voucherService->usePaymentVoucher([
                     'user_id' => $data['idCustomer'],
                     'voucher_id' => $request->voucher_id,
                     'layanan_id' => $data['idLayanan'],
@@ -195,7 +206,7 @@ class ServiceController extends Controller
         $data['user_id'] = session('user_data')['id'];
 
         try {
-            $response = $this->api->usePaymentVoucher($data);
+            $response = $this->voucherService->usePaymentVoucher($data);
 
             return response()->json([
                 'success' => true,

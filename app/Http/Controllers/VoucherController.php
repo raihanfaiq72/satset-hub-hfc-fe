@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiService;
+use App\Services\VoucherService;
 use Illuminate\Http\Request;
 
 class VoucherController extends Controller
 {
     protected $api;
 
-    public function __construct(ApiService $api)
+    public function __construct(VoucherService $api)
     {
         $this->api = $api;
     }
@@ -67,7 +67,7 @@ class VoucherController extends Controller
     public function giftScan(Request $request)
     {
         $userData = session('user_data');
-        if (!$userData) {
+        if (! $userData) {
             return redirect()->route('login');
         }
 
@@ -96,12 +96,12 @@ class VoucherController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Voucher berhasil dikirim!',
-                'data' => $result
+                'data' => $result,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -109,21 +109,22 @@ class VoucherController extends Controller
     public function generateReceiveQr(Request $request)
     {
         $userData = session('user_data');
-        if (!$userData) {
+        if (! $userData) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
         }
 
         try {
             $data = ['user_id' => $userData['id']];
             $response = $this->api->generateReceiveQr($data);
+
             return response()->json([
                 'status' => 'success',
-                'data' => $response
+                'data' => $response,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage()
+                'message' => $e->getMessage(),
             ], 500);
         }
     }

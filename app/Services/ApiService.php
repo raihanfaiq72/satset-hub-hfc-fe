@@ -3,9 +3,8 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
-use Carbon\Carbon;
 
-class ApiService
+abstract class ApiService
 {
     protected $token;
 
@@ -14,13 +13,13 @@ class ApiService
         $this->token = session('api_token');
     }
 
-    protected function request($method, $endpoint, $data = [])
+    protected function request($method, $endpoint, $data = [], $isTokenRequired = true)
     {
-        if (! $this->token) {
+        if (! $this->token && $isTokenRequired) {
             throw new \Exception('No API token in session');
         }
 
-        $url = "http://localhost:8000/api/$endpoint";
+        $url = config('services.api_url').'/api/'.$endpoint;
 
         if (strtolower($method) === 'get') {
             $request = Http::withToken($this->token)->accept('application/json');
@@ -49,110 +48,5 @@ class ApiService
         }
 
         return $response->json()['data'] ?? [];
-    }
-
-    public function getBanners()
-    {
-        return $this->request('get', 'banners');
-    }
-
-    public function getServices()
-    {
-        return $this->request('get', 'layanan');
-    }
-
-    public function getServiceDetail($kode)
-    {
-        return $this->request('get', "layanan/$kode");
-    }
-
-    public function getVoucherBatches()
-    {
-        return $this->request('get', 'payment-vouchers/batches');
-    }
-
-    public function getVouchers()
-    {
-        return $this->request('get', 'payment-vouchers');
-    }
-
-    public function buyVoucher($data)
-    {
-        return $this->request('post', 'payment-vouchers/user-buy', $data);
-    }
-
-    public function getUserPaymentVouchers($data)
-    {
-        return $this->request('get', 'payment-vouchers/user', $data);
-    }
-
-    public function getOrderHistory($data = [])
-    {
-        return $this->request('get', 'order/history', $data);
-    }
-
-    public function createLokasi($data)
-    {
-        return $this->request('post', 'lokasi/create', $data);
-    }
-
-    public function getUserLocations($data)
-    {
-        return $this->request('get', 'lokasi', $data);
-    }
-
-    public function checkAvailableRanger($data)
-    {
-        return $this->request('post', 'order/check-available-ranger', $data);
-    }
-
-    public function getActivePromoModal()
-    {
-        $modals = $this->request('get', 'promosi-modals');
-
-        // Find first active modal within date range
-        $now = Carbon::now();
-        foreach ($modals as $modal) {
-            if (($modal['is_active'] ?? 0) == 1) {
-                $start = isset($modal['mulai_tampil']) ? Carbon::parse($modal['mulai_tampil']) : null;
-                $end = isset($modal['selesai_tampil']) ? Carbon::parse($modal['selesai_tampil']) : null;
-
-                if ((!$start || $now >= $start) && (!$end || $now <= $end)) {
-                    return $modal;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public function createNewOrder($data)
-    {
-        return $this->request('post', 'order', $data);
-    }
-
-    public function getOrderDetail($id)
-    {
-        return $this->request('get', "order/detail/$id");
-    }
-
-    public function usePaymentVoucher($data)
-    {
-        return $this->request('post', 'payment-vouchers/user-use', $data);
-    }
-
-    public function getUserPromoVouchers($data)
-    {
-        return $this->request('get', 'promo-vouchers/user', $data);
-    }
-
-    public function scanAndTransferVoucher($data)
-    {
-        return $this->request('post', 'qr-code/scan-and-transfer', $data);
-    }
-
-    public function generateReceiveQr($data)
-    {
-        return $this->request('post', 'qr-code/generate-receive', $data);
     }
 }

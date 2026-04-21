@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiService;
+use App\Services\OrderService;
 use Carbon\Carbon;
 use Exception;
 
@@ -10,7 +10,7 @@ class HistoryController extends Controller
 {
     protected $api;
 
-    public function __construct(ApiService $api)
+    public function __construct(OrderService $api)
     {
         $this->api = $api;
     }

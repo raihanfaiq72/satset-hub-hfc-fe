@@ -11,19 +11,24 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/login');
 });
-Route::get('/login', [AuthController::class, 'index'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::get('/register', [AuthController::class, 'register'])->name('register');
-Route::post('/register', [AuthController::class, 'registerUser'])->name('register.post');
-Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
-Route::post('/forgot-password', [AuthController::class, 'forgotPasswordSendOTP'])->name('password.noHp');
-Route::get('/otp', [AuthController::class, 'otp'])->name('otp');
-Route::post('/otp', [AuthController::class, 'verifyOTP'])->name('otp.verify');
-Route::get('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
-Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Guest Routes (Only accessible when NOT logged in)
+Route::middleware(['guest.auth'])->group(function () {
+    Route::get('/login', [AuthController::class, 'index'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+    Route::get('/register', [AuthController::class, 'register'])->name('register');
+    Route::post('/register', [AuthController::class, 'registerUser'])->name('register.post');
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'forgotPasswordSendOTP'])->name('password.noHp');
+    Route::get('/otp', [AuthController::class, 'otp'])->name('otp');
+    Route::post('/otp', [AuthController::class, 'verifyOTP'])->name('otp.verify');
+    Route::get('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
+});
+
+// Protected Routes (Only accessible when logged in)
 Route::middleware(['api.auth'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/services', [ServiceController::class, 'index'])->name('services');
     Route::get('/services/{kode}', [ServiceController::class, 'show'])->name('services.detail');

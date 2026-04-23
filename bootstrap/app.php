@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\ApiAuthMiddleware;
+use App\Http\Middleware\GuestAuthMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,7 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'api.auth' => \App\Http\Middleware\ApiAuthMiddleware::class,
+            'api.auth' => ApiAuthMiddleware::class,
+            'guest.auth' => GuestAuthMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -39,8 +39,18 @@ class VoucherService extends ApiService
         return $this->request('post', 'qr-code/scan-and-transfer', $data);
     }
 
+    public function scanAndSendOtp($data)
+    {
+        return $this->request('post', 'qr-code/scan-and-send-otp', $data);
+    }
+
     public function generateReceiveQr($data)
     {
         return $this->request('post', 'qr-code/generate-receive', $data);
+    }
+
+    public function checkOTPStatus($data)
+    {
+        return $this->request('post', 'qr-code/check-otp-status', $data);
     }
 }

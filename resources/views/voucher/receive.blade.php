@@ -1,118 +1,317 @@
 @extends('components.head')
 
 @section('content')
-<body class="bg-gray-50 min-h-screen">
-    <!-- Main Receive Page -->
-    <div class="flex min-h-screen flex-col">
-        <!-- Header -->
-        <header class="bg-white px-5 py-6 flex items-center gap-4 sticky top-0 z-40 shadow-sm transition-shadow duration-300">
-            <a href="{{ route('voucher.index') }}" class="h-10 w-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 active:scale-95 transition-all">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-            </a>
-            <h1 class="text-xl font-black text-gray-800 uppercase italic tracking-tighter">Terima Voucher</h1>
-        </header>
 
-        <!-- Main Content -->
-        <main class="flex-1 px-5 pt-10 pb-20 flex flex-col items-center">
-            <div class="text-center mb-10">
-                <h2 class="text-2xl font-black text-gray-800 uppercase italic tracking-tight">QR Code Anda</h2>
-                <p class="text-gray-400 text-sm font-bold mt-1">Tunjukkan ke teman untuk menerima voucher</p>
-            </div>
+    <body class="bg-black min-h-screen overflow-hidden">
+        <!-- Camera Scanner View -->
+        <div id="scannerContainer" class="fixed inset-0 z-0 bg-black">
+            <div id="reader" class="w-full h-full"></div>
+        </div>
 
-            <!-- QR Container -->
-            <div class="bg-white p-8 rounded-[48px] shadow-2xl shadow-gray-200 border border-gray-100 mb-10 relative group">
-                <div id="qrContainer" class="w-64 h-64 bg-gray-50 rounded-3xl flex items-center justify-center overflow-hidden border-4 border-gray-50">
-                    <!-- Loading pulse while fetching -->
-                    <div class="animate-pulse flex flex-col items-center">
-                        <div class="w-16 h-16 bg-gray-200 rounded-full mb-4"></div>
-                        <div class="h-3 w-32 bg-gray-200 rounded-full"></div>
+        <!-- Overlay UI -->
+        <div class="fixed inset-0 z-10 flex flex-col pointer-events-none">
+            <!-- Top Bar -->
+            <header
+                class="bg-black/40 backdrop-blur-md px-5 py-6 flex items-center gap-4 pointer-events-auto transition-all duration-300">
+                <a href="{{ route('voucher.index') }}"
+                    class="h-10 w-10 bg-white/20 rounded-full flex items-center justify-center text-white backdrop-blur-md active:scale-95 transition-transform">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                </a>
+                <div class="flex-1">
+                    <h1 class="text-lg font-black text-white uppercase italic tracking-tighter leading-none">Terima Voucher
+                    </h1>
+                    <p class="text-[10px] font-bold text-white/60 uppercase tracking-widest mt-1">Scan QR Pengirim</p>
+                </div>
+            </header>
+
+            <!-- Scanning Frame Overlay -->
+            <div class="flex-1 flex flex-col items-center pt-20">
+                <div class="relative w-72 h-72 border-2 border-white/10 rounded-[48px] bg-white/5">
+                    <!-- Corner Accents -->
+                    <div class="absolute -top-1 -left-1 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-[24px]">
+                    </div>
+                    <div class="absolute -top-1 -right-1 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-[24px]">
+                    </div>
+                    <div class="absolute -bottom-1 -left-1 w-12 h-12 border-b-4 border-l-4 border-white rounded-bl-[24px]">
+                    </div>
+                    <div class="absolute -bottom-1 -right-1 w-12 h-12 border-b-4 border-r-4 border-white rounded-br-[24px]">
+                    </div>
+
+                    <!-- Scanning Line -->
+                    <div
+                        class="absolute left-6 right-6 h-1 bg-satset-green shadow-[0_0_20px_#21ada8] animate-scan-line z-20">
                     </div>
                 </div>
-                
-                <!-- Corner Accents -->
-                <div class="absolute -top-2 -left-2 w-12 h-12 border-t-4 border-l-4 border-satset-green rounded-tl-[24px]"></div>
-                <div class="absolute -top-2 -right-2 w-12 h-12 border-t-4 border-r-4 border-satset-green rounded-tr-[24px]"></div>
-                <div class="absolute -bottom-2 -left-2 w-12 h-12 border-b-4 border-l-4 border-satset-green rounded-bl-[24px]"></div>
-                <div class="absolute -bottom-2 -right-2 w-12 h-12 border-b-4 border-r-4 border-satset-green rounded-br-[24px]"></div>
+                <p
+                    class="mt-10 text-white/90 text-sm font-black bg-white/10 px-6 py-3 rounded-full backdrop-blur-md uppercase tracking-widest italic border border-white/10">
+                    Scanning...</p>
             </div>
 
-            <!-- OTP Card -->
-            <div class="bg-satset-green p-8 rounded-[40px] w-full max-w-sm shadow-xl shadow-satset-green/20 text-center relative overflow-hidden">
-                <!-- Abstract background pattern -->
-                <div class="absolute top-0 right-0 -mr-10 -mt-10 h-32 w-32 bg-white/10 rounded-full blur-2xl"></div>
-                <div class="absolute bottom-0 left-0 -ml-10 -mb-10 h-32 w-32 bg-white/10 rounded-full blur-2xl"></div>
+            <!-- Bottom Controls -->
+            <div class="bg-gradient-to-t from-black/80 to-transparent p-10 pointer-events-auto">
+                <div class="flex items-center justify-center gap-12">
+                    <!-- Flash Button -->
+                    <button id="toggleFlash" onclick="toggleFlash()" class="flex flex-col items-center gap-2 group">
+                        <div
+                            class="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-white border border-white/10 backdrop-blur-md group-active:scale-90 transition-all">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+                            </svg>
+                        </div>
+                        <span class="text-[10px] font-black text-white uppercase tracking-widest">Senter</span>
+                    </button>
 
-                <p class="text-[10px] font-black text-white/80 uppercase tracking-[0.3em] mb-3">Kode Verifikasi (OTP)</p>
-                <div class="flex justify-center items-center gap-1">
-                    <h3 id="otpValue" class="text-5xl font-black text-white tracking-[0.2em] font-mono">------</h3>
-                </div>
-                <div class="mt-6 inline-flex items-center gap-2 bg-black/10 px-4 py-2 rounded-full border border-white/10">
-                    <div class="h-2 w-2 bg-white rounded-full animate-pulse"></div>
-                    <p class="text-[10px] font-bold text-white uppercase tracking-widest italic">Berlaku selama 5 menit</p>
+                    <!-- Upload Button -->
+                    <button onclick="document.getElementById('qr-input-file').click()"
+                        class="flex flex-col items-center gap-2 group">
+                        <div
+                            class="h-16 w-16 bg-white/10 rounded-full flex items-center justify-center text-white border border-white/10 backdrop-blur-md group-active:scale-90 transition-all">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </div>
+                        <span class="text-[10px] font-black text-white uppercase tracking-widest">Galeri</span>
+                    </button>
+
+                    <!-- Hidden File Input -->
+                    <input type="file" id="qr-input-file" accept="image/*" class="hidden" onchange="uploadImage(event)">
                 </div>
             </div>
+        </div>
 
-            <div class="mt-12 text-center max-w-xs">
-                <div class="h-12 w-12 bg-orange-500/10 rounded-2xl flex items-center justify-center text-orange-500 mx-auto mb-4">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        <!-- Success Overlay -->
+        <div id="successOverlay"
+            class="fixed inset-0 bg-satset-green z-[100] hidden flex flex-col items-center justify-center p-10 text-center text-white">
+            <div class="success-check mb-8">
+                <div
+                    class="h-32 w-32 bg-white rounded-[48px] flex items-center justify-center text-satset-green shadow-2xl">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
                 </div>
-                <p class="text-xs font-bold text-gray-500 leading-relaxed uppercase tracking-wider">Berikan kode OTP kepada pengirim setelah mereka memindai QR Code Anda.</p>
             </div>
-        </main>
-    </div>
+            <h2 class="text-3xl font-black uppercase italic tracking-tighter mb-4">Berhasil Scan!</h2>
+            <p class="font-bold opacity-80 mb-12">Berhasil memindai QR code. Silakan tunggu pengirim mengonfirmasi.</p>
+            <a href="{{ route('voucher.index') }}"
+                class="w-full bg-white text-satset-green py-5 rounded-[24px] font-black uppercase tracking-[0.2em] italic text-sm shadow-xl">Kembali
+                ke Voucher</a>
+        </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            fetchQrData();
-        });
+        <!-- Loading State -->
+        <div id="loadingOverlay"
+            class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[90] hidden flex flex-col items-center justify-center p-10 text-center text-black">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-satset-green mb-6"></div>
+            <p class="font-black uppercase italic tracking-widest text-xs">Sedang Memproses</p>
+        </div>
 
-        function fetchQrData() {
-            const qrContainer = document.getElementById('qrContainer');
-            const otpText = document.getElementById('otpValue');
+        <script src="https://unpkg.com/html5-qrcode"></script>
+        <script>
+            let html5QrCode = null;
+            let isFlashOn = false;
 
-            fetch("{{ route('voucher.generateReceiveQr') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    const qrCode = data.data.qr_code;
-                    const otp = data.data.otp;
-
-                    // Generate QR Image using external service
-                    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(qrCode)}`;
-                    qrContainer.innerHTML = `<img src="${qrUrl}" alt="QR Code" class="w-full h-full object-contain p-2 animate-fade-in">`;
-                    otpText.textContent = otp;
-                } else {
-                    alert(data.message || 'Gagal membuat QR Code.');
-                    window.location.href = "{{ route('voucher.index') }}";
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Terjadi kesalahan koneksi.');
-                window.location.href = "{{ route('voucher.index') }}";
+            document.addEventListener('DOMContentLoaded', function() {
+                initScanner();
             });
-        }
-    </script>
 
-    <style>
-        .animate-fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-    </style>
-</body>
+            function initScanner() {
+                html5QrCode = new Html5Qrcode("reader");
+                const config = {
+                    fps: 25,
+                    aspectRatio: window.innerWidth / window.innerHeight
+                };
+
+                html5QrCode.start({
+                        facingMode: "environment"
+                    },
+                    config,
+                    (decodedText, decodedResult) => {
+                        vibrate();
+                        sendOtpAndShowSuccess(decodedText);
+                    }
+                ).catch(err => {
+                    console.error("Camera error:", err);
+                    alert("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
+                });
+            }
+
+            async function toggleFlash() {
+                if (!html5QrCode) return;
+                try {
+                    isFlashOn = !isFlashOn;
+                    await html5QrCode.applyVideoConstraints({
+                        advanced: [{
+                            torch: isFlashOn
+                        }]
+                    });
+                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('bg-satset-green',
+                        isFlashOn);
+                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-white', !isFlashOn);
+                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-black', isFlashOn);
+                } catch (err) {
+                    console.error("Flash error:", err);
+                    alert("Flash tidak didukung di perangkat/browser ini.");
+                }
+            }
+
+            async function uploadImage(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                try {
+                    if (html5QrCode && html5QrCode.getState() === 2) {
+                        try {
+                            await html5QrCode.stop();
+                        } catch (e) {
+                            console.warn("Camera stop failed:", e);
+                        }
+                    }
+
+                    const decodedText = await html5QrCode.scanFile(file, false);
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    vibrate();
+                    sendOtpAndShowSuccess(decodedText);
+                } catch (err) {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    console.error("Scan error:", err);
+                    let errorMsg = "Gagal memindai QR Code.";
+                    if (err.includes("not found") || err.includes("No MultiFormat Readers")) {
+                        errorMsg = "QR Code tidak terdeteksi dalam gambar.";
+                    }
+                    alert(errorMsg);
+                    if (html5QrCode && html5QrCode.getState() !== 2) {
+                        initScanner();
+                    }
+                } finally {
+                    event.target.value = '';
+                }
+            }
+
+            function sendOtpAndShowSuccess(qrCode) {
+                if (html5QrCode && html5QrCode.getState() === 2) {
+                    html5QrCode.stop().catch(err => console.warn("Camera stop failed:", err));
+                }
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                fetch("{{ route('voucher.giftSendOtp') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            qr_code: qrCode
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        if (data.success) {
+                            document.getElementById('successOverlay').classList.remove('hidden');
+                        } else {
+                            alert(data.message || 'Gagal mengirim OTP ke pengirim. Silakan coba lagi.');
+                            initScanner();
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('loadingOverlay').classList.add('hidden');
+                        console.error('Error:', error);
+                        alert('Terjadi kesalahan koneksi.');
+                        initScanner();
+                    });
+            }
+
+            function vibrate() {
+                if (window.navigator && window.navigator.vibrate) {
+                    window.navigator.vibrate(100);
+                }
+            }
+        </script>
+
+        <style>
+            @keyframes scan-line {
+                0% {
+                    top: 5%;
+                    opacity: 0;
+                }
+
+                10% {
+                    opacity: 1;
+                }
+
+                50% {
+                    top: 95%;
+                    opacity: 1;
+                }
+
+                90% {
+                    opacity: 1;
+                }
+
+                100% {
+                    top: 5%;
+                    opacity: 0;
+                }
+            }
+
+            .animate-scan-line {
+                animation: scan-line 3s linear infinite;
+            }
+
+            #reader__dashboard,
+            #reader__status_span,
+            #reader img,
+            #reader__scan_region>div {
+                display: none !important;
+            }
+
+            #reader {
+                border: none !important;
+            }
+
+            #reader__scan_region video {
+                object-fit: cover !important;
+                width: 100vw !important;
+                height: 100vh !important;
+            }
+
+            #reader__scan_region {
+                background: black !important;
+            }
+
+            .success-check {
+                animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            @keyframes bounceIn {
+                0% {
+                    transform: scale(0);
+                    opacity: 0;
+                }
+
+                50% {
+                    transform: scale(1.1);
+                    opacity: 1;
+                }
+
+                70% {
+                    transform: scale(0.95);
+                }
+
+                100% {
+                    transform: scale(1);
+                }
+            }
+        </style>
+    </body>
 @endsection

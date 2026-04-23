@@ -195,6 +195,7 @@
         </div>
 
         @include('voucher.scriptBottom')
+        @include('voucher.partials.payment-steps')
         <script>
             window.allVouchers = @json($vouchers);
             window.userPaymentVouchers = @json($userPaymentVouchers);

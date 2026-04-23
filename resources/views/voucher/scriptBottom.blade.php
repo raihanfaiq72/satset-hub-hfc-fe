@@ -228,7 +228,7 @@
         const btnGift = page.querySelector('#btn-gift-voucher');
         if (btnGift) {
             btnGift.onclick = () => {
-                const voucherType = voucher.batch_info.type || 'payment'; // Fallback to payment
+                const voucherType = voucher.voucher_type || 'payment'; // Use server-provided type
                 window.location.href =
                     `{{ route('voucher.giftScan') }}?voucher_id=${voucher.id}&voucher_type=${voucherType}`;
             };

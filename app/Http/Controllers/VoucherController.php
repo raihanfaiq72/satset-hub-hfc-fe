@@ -106,6 +106,27 @@ class VoucherController extends Controller
         }
     }
 
+    public function scanAndSendOtp(Request $request)
+    {
+        try {
+            $data = [
+                'qr_code' => $request->input('qr_code'),
+            ];
+
+            $result = $this->api->scanAndSendOtp($data);
+
+            return response()->json([
+                'success' => isset($result['status']) ? $result['status'] === 'success' : true,
+                'data' => $result,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     public function generateReceiveQr(Request $request)
     {
         $userData = session('user_data');
@@ -124,6 +145,29 @@ class VoucherController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function checkOtpStatus(Request $request)
+    {
+        $userData = session('user_data');
+        if (! $userData) {
+            return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 401);
+        }
+
+        try {
+            $data = ['user_id' => $userData['id']];
+            $response = $this->api->checkOTPStatus($data);
+
+            return response()->json([
+                'success' => isset($response['scanned']),
+                'data' => $response,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
                 'message' => $e->getMessage(),
             ], 500);
         }

@@ -217,6 +217,10 @@
                     .then(data => {
                         document.getElementById('loadingOverlay').classList.add('hidden');
                         if (data.success) {
+                            if (data.message) {
+                                document.querySelector('#successOverlay h2').textContent = 'Scan Berhasil';
+                                document.querySelector('#successOverlay p').textContent = data.message;
+                            }
                             document.getElementById('successOverlay').classList.remove('hidden');
                         } else {
                             alert(data.message || 'Gagal mengirim OTP ke pengirim. Silakan coba lagi.');

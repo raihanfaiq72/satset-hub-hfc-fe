@@ -120,9 +120,22 @@ class VoucherController extends Controller
                 'data' => $result,
             ]);
         } catch (\Exception $e) {
+            $message = $e->getMessage();
+            
+            // If the error is specifically about WhatsApp failing, we treat it as a "soft success"
+            // because the OTP session was already created in the database and the Giver can 
+            // still proceed if they can find the OTP (e.g. from logs).
+            if (str_contains($message, 'Failed to send OTP via WhatsApp')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Scan berhasil, namun pengiriman WhatsApp tertunda. Silakan cek OTP secara manual.',
+                    'soft_error' => $message
+                ]);
+            }
+
             return response()->json([
                 'success' => false,
-                'message' => $e->getMessage(),
+                'message' => $message,
             ], 500);
         }
     }

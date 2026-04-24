@@ -106,12 +106,7 @@
                 ke Voucher</a>
         </div>
 
-        <!-- Loading State -->
-        <div id="loadingOverlay"
-            class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[90] hidden flex flex-col items-center justify-center p-10 text-center text-black">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-satset-green mb-6"></div>
-            <p class="font-black uppercase italic tracking-widest text-xs">Sedang Memproses</p>
-        </div>
+
 
         @include('services.partials.alert_modal')
     </body>
@@ -169,7 +164,7 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            document.getElementById('loadingOverlay').classList.remove('hidden');
+            showLoading();
 
             try {
                 if (html5QrCode && html5QrCode.getState() === 2) {
@@ -181,11 +176,11 @@
                 }
 
                 const decodedText = await html5QrCode.scanFile(file, false);
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                hideLoading();
                 vibrate();
                 sendOtpAndShowSuccess(decodedText);
             } catch (err) {
-                document.getElementById('loadingOverlay').classList.add('hidden');
+                hideLoading();
                 console.error("Scan error:", err);
                 let errorMsg = "Gagal memindai QR Code.";
                 if (err.includes("not found") || err.includes("No MultiFormat Readers")) {
@@ -204,7 +199,7 @@
             if (html5QrCode && html5QrCode.getState() === 2) {
                 html5QrCode.stop().catch(err => console.warn("Camera stop failed:", err));
             }
-            document.getElementById('loadingOverlay').classList.remove('hidden');
+            showLoading();
 
             fetch("{{ route('voucher.giftSendOtp') }}", {
                     method: 'POST',
@@ -218,7 +213,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    hideLoading();
                     if (data.success) {
                         if (data.message) {
                             document.querySelector('#successOverlay h2').textContent = 'Scan Berhasil';
@@ -232,7 +227,7 @@
                     }
                 })
                 .catch(error => {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    hideLoading();
                     console.error('Error:', error);
                     showAlert("Kesalahan", 'Terjadi kesalahan koneksi.', "error");
                     initScanner();

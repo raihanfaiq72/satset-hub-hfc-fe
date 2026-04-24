@@ -64,7 +64,7 @@
             <div class="grid grid-cols-1 gap-3">
                 <!-- Voucher Pembayaran -->
                 <div class="payment-method-card bg-white border-2 border-gray-100 rounded-[28px] p-4 flex items-center gap-4 cursor-pointer transition-all hover:border-satset-green"
-                    onclick="selectPaymentMethod('voucher')">
+                    onclick="selectPaymentMethod('Voucher')">
                     <div
                         class="h-12 w-12 bg-satset-green rounded-2xl flex items-center justify-center text-white shrink-0">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -89,7 +89,7 @@
                             class="text-gray-300 transition-colors" id="voucherArrow">
                             <polyline points="9 18 15 12 9 6"></polyline>
                         </svg> --}}
-                        <input type="radio" name="payment_method" value="voucher"
+                        <input type="radio" name="payment_method" value="Voucher"
                             class="radio-custom pointer-events-none" id="radio-voucher">
                     </div>
                 </div>

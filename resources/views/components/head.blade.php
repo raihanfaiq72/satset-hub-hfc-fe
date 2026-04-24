@@ -24,4 +24,5 @@
     @stack('script_head')
     @stack('style')
 </head>
+@include('components.loading')
 @yield('content')

@@ -22,18 +22,18 @@
                 <div class="w-full">
                     <div class="grid w-full grid-cols-2 bg-gray-100 rounded-[24px] h-14 p-1.5 mt-3 mb-5 shadow-inner">
                         <button onclick="switchTab('past')" id="tab-past"
-                            class="tab-btn rounded-[20px] font-black text-[10px] uppercase tracking-widest active">
+                            class="tab-btn rounded-[20px] font-black text-[10px] uppercase tracking-widest">
                             Pesanan Lampau
                         </button>
                         <button onclick="switchTab('current')" id="tab-current"
-                            class="tab-btn rounded-[20px] font-black text-[10px] uppercase tracking-widest">
+                            class="tab-btn rounded-[20px] font-black text-[10px] uppercase tracking-widest active">
                             Sekarang
                         </button>
                     </div>
 
                     <div id="tabContent" class="tab-content">
                         <!-- Past Tab -->
-                        <div id="content-past" class="space-y-4">
+                        <div id="content-past" class="space-y-4 hidden">
                             @forelse ($pastOrders as $order)
                                 @include('history.partials.order-card', ['order' => $order])
                             @empty
@@ -45,7 +45,7 @@
                         </div>
 
                         <!-- Current & Future Tab -->
-                        <div id="content-current" class="space-y-4 hidden">
+                        <div id="content-current" class="space-y-4">
                             @forelse ($currentOrders as $order)
                                 @include('history.partials.order-card', ['order' => $order])
                             @empty

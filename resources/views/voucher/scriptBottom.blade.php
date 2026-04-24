@@ -123,6 +123,7 @@
         // Pick IDs to buy
         const idsToBuy = availableVouchers.slice(0, quantity).map(v => v.id);
 
+        showLoading();
         try {
             const response = await fetch(window.buyVoucherRoute, {
                 method: 'POST',
@@ -136,6 +137,7 @@
             });
 
             const result = await response.json();
+            hideLoading();
 
             if (result.success) {
                 paymentStep = 3;
@@ -144,6 +146,7 @@
                 showAlert("Gagal", result.message || "Gagal membeli voucher.", 'error');
             }
         } catch (error) {
+            hideLoading();
             console.error('Error buying voucher:', error);
             showAlert("Kesalahan", "Terjadi kesalahan saat menghubungi server.", 'error');
         }

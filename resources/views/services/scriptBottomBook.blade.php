@@ -269,7 +269,7 @@
 
 
     function showPromoModal() {
-        if (orderData.payment_method === 'voucher') {
+        if (orderData.payment_method === 'Voucher') {
             showAlert("Promo Tidak Tersedia", "Voucher Pembayaran tidak dapat digabung dengan promo lainnya.");
             return;
         }
@@ -456,7 +456,7 @@
             footerBtn.style.opacity = method ? '1' : '0.5';
         }
 
-        if (method === 'voucher') {
+        if (method === 'Voucher') {
             if (btnPick) btnPick.classList.remove('hidden');
             if (arrow) arrow.classList.add('text-satset-green');
 
@@ -585,6 +585,7 @@
         const btn = document.querySelector('#footerAction button');
         const originalContent = btn.innerHTML;
 
+        showLoading();
         try {
             btn.disabled = true;
             btn.innerHTML =
@@ -597,16 +598,19 @@
                 idLayanan: orderData.idLayanan,
                 tglPekerjaan: tglPekerjaan,
                 idSubLayanan: orderData.idSubLayanan,
-                idLokasi: orderData.idLokasi
+                idLokasi: orderData.idLokasi,
+                payment_method: orderData.payment_method,
+                metodePembayaran: orderData.payment_method === 'Voucher' ? 'Voucher Pembayaran' : 'Non Tunai'
             };
 
             // Add voucher info if strictly paying with voucher
-            if (orderData.payment_method === 'voucher') {
+            if (orderData.payment_method === 'Voucher') {
                 if (orderData.selected_voucher_id) {
                     payload.payment_voucher_id = orderData.selected_voucher_id;
                 } else if (orderData.availableVouchers.length > 0) {
                     payload.payment_voucher_id = orderData.availableVouchers[0].id;
                 } else {
+                    hideLoading();
                     showAlert("Voucher Tidak Ada", "Kamu tidak memiliki voucher pembayaran aktif.", 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
@@ -630,10 +634,11 @@
 
             const orderResult = await orderResponse.json();
             if (!orderResult.success) {
+                hideLoading();
                 let errorTitle = "Gagal";
                 let errorMsg = orderResult.message || "Gagal membuat pesanan.";
                 
-                if (orderData.payment_method === 'voucher') {
+                if (orderData.payment_method === 'Voucher') {
                     errorTitle = "Voucher Gagal";
                     errorMsg = "Voucher tidak bisa digunakan";
                 }
@@ -644,8 +649,11 @@
                 return;
             }
 
+            // Success will lead to step change or redirect
+            hideLoading();
+
             // 2. Handle Navigation
-            if (orderData.payment_method === 'voucher') {
+            if (orderData.payment_method === 'Voucher') {
                 currentStep = 4;
                 updateStep();
             } else {
@@ -653,6 +661,7 @@
                 updateStep();
             }
         } catch (error) {
+            hideLoading();
             console.error("Payment error:", error);
             showAlert("Kesalahan", "Terjadi kesalahan saat memproses pembayaran.", 'error');
             btn.disabled = false;

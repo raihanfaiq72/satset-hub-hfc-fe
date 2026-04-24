@@ -129,12 +129,7 @@
                 ke Voucher</a>
         </div>
 
-        <!-- Loading State -->
-        <div id="loadingOverlay"
-            class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[90] hidden flex flex-col items-center justify-center p-10 text-center text-black">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-satset-green mb-6"></div>
-            <p class="font-black uppercase italic tracking-widest text-xs">Sedang Memproses</p>
-        </div>
+
 
         @include('services.partials.alert_modal')
     </body>
@@ -223,7 +218,7 @@
 
         function processGift() {
             const otp = Array.from(document.querySelectorAll('.otp-input')).map(i => i.value).join('');
-            document.getElementById('loadingOverlay').classList.remove('hidden');
+            showLoading();
 
             fetch("{{ route('voucher.giftProcess') }}", {
                     method: 'POST',
@@ -240,7 +235,7 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    hideLoading();
                     if (data.success) {
                         document.getElementById('successOverlay').classList.remove('hidden');
                     } else {
@@ -251,7 +246,7 @@
                     }
                 })
                 .catch(error => {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    hideLoading();
                     console.error('Error:', error);
                     showAlert("Kesalahan", 'Terjadi kesalahan koneksi.', 'error');
                 });

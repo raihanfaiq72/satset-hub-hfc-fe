@@ -76,12 +76,14 @@ class ServiceController extends Controller
         ];
         $userLocations = $this->orderService->getUserLocations($data);
         $service = $this->orderService->getServiceDetail($kode);
+        $baseUrl = config('services.api_url');
 
         return view('services.book', [
             'kode' => $kode,
             'api_token' => session('api_token'),
             'user_locations' => $userLocations,
             'service' => $service,
+            'api_base_url' => $baseUrl,
         ]);
     }
 
@@ -96,7 +98,7 @@ class ServiceController extends Controller
             'idRegencies' => 'required',
             'idDistricts' => 'required',
             'idVillages' => 'required',
-            'namorderServiceC' => 'required',
+            'namaPIC' => 'required',
             'noHpPIC' => 'required',
             'jenisBangunan' => 'required',
         ]);
@@ -119,7 +121,11 @@ class ServiceController extends Controller
                 'p_step' => 2,
             ]);
         } catch (Exception $e) {
-            return back()->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
+            return back()->with([
+                'p_step' => 21,
+                'p_date' => $request->date,
+                'p_time' => $request->time,
+            ])->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
         }
     }
 

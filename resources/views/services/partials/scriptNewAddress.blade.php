@@ -3,10 +3,10 @@
     let markerInstance = null;
     let tsProv, tsReg, tsDist, tsVill;
     let searchTimer = null;
+    let apiBaseUrl = "{{ $api_base_url }}";
 
     function updateNewAddressData(key, value) {
         orderData.newAddress[key] = value;
-        console.log('Updated newAddress:', key, value);
     }
 
     function initNewAddressMap() {
@@ -46,7 +46,7 @@
         try {
             // Using backend proxy to comply with policy and set User-Agent
             const response = await fetch(
-                `http://127.0.0.1:8000/api/proxy/search?q=${encodeURIComponent(query)}`, {
+                `${apiBaseUrl}/proxy/search?q=${encodeURIComponent(query)}`, {
                     headers: {
                         'Authorization': 'Bearer ' + '{{ $api_token }}'
                     }
@@ -98,7 +98,7 @@
     async function reverseGeocode(lat, lng) {
         try {
             const response = await fetch(
-                `http://127.0.0.1:8000/api/proxy/reverse?lat=${lat}&lon=${lng}`, {
+                `${apiBaseUrl}/proxy/reverse?lat=${lat}&lon=${lng}`, {
                     headers: {
                         'Authorization': 'Bearer ' + '{{ $api_token }}'
                     }
@@ -172,7 +172,7 @@
     async function fetchProvinces() {
         if (!tsProv) return;
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/provinces', {
+            const res = await fetch(`${apiBaseUrl}/provinces`, {
                 headers: {
                     'Authorization': 'Bearer ' + '{{ $api_token }}'
                 }
@@ -193,7 +193,7 @@
             return;
         }
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/regencies/' + id, {
+            const res = await fetch(`${apiBaseUrl}/regencies/${id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + '{{ $api_token }}'
                 }
@@ -215,7 +215,7 @@
             return;
         }
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/districts/' + id, {
+            const res = await fetch(`${apiBaseUrl}/districts/${id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + '{{ $api_token }}'
                 }
@@ -237,7 +237,7 @@
             return;
         }
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/villages/' + id, {
+            const res = await fetch(`${apiBaseUrl}/villages/${id}`, {
                 headers: {
                     'Authorization': 'Bearer ' + '{{ $api_token }}'
                 }

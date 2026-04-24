@@ -1,21 +1,22 @@
 <template id="tpl-step-21">
-    <div class="space-y-6 pb-20">
-        <form id="newAddressForm" method="POST" action="{{ route('services.book.location', $kode) }}" class="space-y-6">
+    <div class="space-y-6 pb-8">
+        <form id="newAddressForm" method="POST" action="{{ route('services.book.location', $kode) }}">
             @csrf
             <input type="hidden" name="date" id="formDate">
             <input type="hidden" name="time" id="formTime">
 
-            <!-- Nama Lokasi -->
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-gray-700 ml-1">Nama Lokasi (Contoh: Rumah, Kantor) <span
-                        class="text-red-500">*</span></label>
-                <input type="text" name="NamaLokasi" id="locNameInput" placeholder="Masukkan nama lokasi..."
-                    class="h-14 rounded-[20px] border-gray-100 focus:ring-satset-green w-full px-5 border-2 bg-gray-50/50 font-bold text-gray-800"
-                    required oninput="updateNewAddressData('title', this.value)" />
-            </div>
+            <div class="space-y-4 mt-2">
+                <!-- Nama Lokasi -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 ml-1">Nama Lokasi (Contoh: Rumah, Kantor) <span
+                            class="text-red-500">*</span></label>
+                    <input type="text" name="NamaLokasi" id="locNameInput" placeholder="Masukkan nama lokasi..."
+                        class="h-14 rounded-[20px] border-gray-100 focus:ring-satset-green w-full px-5 border-2 bg-gray-50/50 font-bold text-gray-800"
+                        required oninput="updateNewAddressData('title', this.value)" />
+                </div>
 
-            <!-- Pencarian Alamat -->
-            {{-- <div class="space-y-2 relative">
+                <!-- Pencarian Alamat -->
+                {{-- <div class="space-y-2 relative">
                 <label class="text-sm font-bold text-gray-700 ml-1">Cari Alamat</label>
                 <div class="relative flex gap-2">
                     <div class="relative flex-1">
@@ -38,8 +39,8 @@
                 </div>
             </div> --}}
 
-            <!-- Pin Lokasi (Map) -->
-            {{-- <div class="space-y-2">
+                <!-- Pin Lokasi (Map) -->
+                {{-- <div class="space-y-2">
                 <label class="text-sm font-bold text-gray-700 ml-1">Pin Lokasi</label>
                 <div id="newAddressMap" class="h-64 rounded-[20px] shadow-inner border-2 border-gray-100 overflow-hidden"></div>
                 <p class="text-[10px] text-gray-400 mt-1 ml-1 font-medium italic">*Geser pin untuk menyesuaikan lokasi tepatnya secara satset!</p>
@@ -47,81 +48,85 @@
 
             <hr class="border-gray-100" /> --}}
 
-            <!-- RT / RW -->
-            <div class="grid grid-cols-2 gap-4">
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">RT <span class="text-red-500">*</span></label>
-                    <input type="number" name="RT" id="locRTInput" placeholder="001"
-                        class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
-                        required oninput="updateNewAddressData('rt', this.value)" />
+                <!-- RT / RW -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">RT <span
+                                class="text-red-500">*</span></label>
+                        <input type="number" name="RT" id="locRTInput" placeholder="001"
+                            class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
+                            required oninput="updateNewAddressData('rt', this.value)" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">RW <span
+                                class="text-red-500">*</span></label>
+                        <input type="number" name="RW" id="locRWInput" placeholder="001"
+                            class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
+                            required oninput="updateNewAddressData('rw', this.value)" />
+                    </div>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">RW <span class="text-red-500">*</span></label>
-                    <input type="number" name="RW" id="locRWInput" placeholder="001"
-                        class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
-                        required oninput="updateNewAddressData('rw', this.value)" />
-                </div>
-            </div>
 
-            <!-- Nama PIC / No HP PIC -->
-            <div class="grid grid-cols-2 gap-4">
+                <!-- Nama PIC / No HP PIC -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">Nama PIC <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="namaPIC" id="picNameInput" placeholder="Nama penerima..."
+                            class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
+                            required oninput="updateNewAddressData('namaPIC', this.value)" />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">No HP PIC <span
+                                class="text-red-500">*</span></label>
+                        <input type="text" name="noHpPIC" id="picPhoneInput" placeholder="0812..."
+                            class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
+                            required oninput="updateNewAddressData('noHpPIC', this.value)" />
+                    </div>
+                </div>
+
+                <!-- Jenis Bangunan -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">Nama PIC <span
+                    <label class="text-sm font-bold text-gray-700 ml-1">Jenis Bangunan <span
                             class="text-red-500">*</span></label>
-                    <input type="text" name="namaPIC" id="picNameInput" placeholder="Nama penerima..."
+                    <input type="text" name="jenisBangunan" id="buildingTypeInput"
+                        placeholder="Contoh: Rumah Tinggal, Ruko, dll"
                         class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
-                        required oninput="updateNewAddressData('namaPIC', this.value)" />
+                        required oninput="updateNewAddressData('jenisBangunan', this.value)" />
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">No HP PIC <span
-                            class="text-red-500">*</span></label>
-                    <input type="text" name="noHpPIC" id="picPhoneInput" placeholder="0812..."
-                        class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
-                        required oninput="updateNewAddressData('noHpPIC', this.value)" />
-                </div>
-            </div>
 
-            <!-- Jenis Bangunan -->
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-gray-700 ml-1">Jenis Bangunan <span
-                        class="text-red-500">*</span></label>
-                <input type="text" name="jenisBangunan" id="buildingTypeInput"
-                    placeholder="Contoh: Rumah Tinggal, Ruko, dll"
-                    class="h-12 rounded-xl border-gray-100 w-full px-4 border-2 bg-gray-50/50 font-bold text-gray-800"
-                    required oninput="updateNewAddressData('jenisBangunan', this.value)" />
-            </div>
+                <!-- Detail Wilayah -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1 text-uppercase">Provinsi <span
+                                class="text-red-500">*</span></label>
+                        <select name="idProvince" id="provSelect" class="w-full" required></select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">Kota/Kabupaten <span
+                                class="text-red-500">*</span></label>
+                        <select name="idRegencies" id="regSelect" class="w-full" required></select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">Kecamatan <span
+                                class="text-red-500">*</span></label>
+                        <select name="idDistricts" id="distSelect" class="w-full" required></select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-gray-500 ml-1">Kelurahan <span
+                                class="text-red-500">*</span></label>
+                        <select name="idVillages" id="villSelect" class="w-full" required></select>
+                    </div>
+                </div>
 
-            <!-- Detail Wilayah -->
-            <div class="grid grid-cols-2 gap-4">
+                <!-- Full Address Area -->
                 <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1 text-uppercase">Provinsi <span
+                    <label class="text-sm font-bold text-gray-700 ml-1">Alamat Lengkap <span
                             class="text-red-500">*</span></label>
-                    <select name="idProvince" id="provSelect" class="w-full" required></select>
+                    <textarea name="alamat" id="fullAddressArea" placeholder="Jl. Nama Jalan, No. Rumah, Patokan..."
+                        class="min-h-[100px] rounded-[20px] border-gray-100 focus:ring-satset-green w-full p-5 border-2 bg-white font-medium text-gray-800 text-sm"
+                        required oninput="updateNewAddressData('address', this.value)"></textarea>
                 </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">Kota/Kabupaten <span
-                            class="text-red-500">*</span></label>
-                    <select name="idRegencies" id="regSelect" class="w-full" required></select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">Kecamatan <span
-                            class="text-red-500">*</span></label>
-                    <select name="idDistricts" id="distSelect" class="w-full" required></select>
-                </div>
-                <div class="space-y-2">
-                    <label class="text-xs font-bold text-gray-500 ml-1">Kelurahan <span
-                            class="text-red-500">*</span></label>
-                    <select name="idVillages" id="villSelect" class="w-full" required></select>
-                </div>
-            </div>
 
-            <!-- Full Address Area -->
-            <div class="space-y-2">
-                <label class="text-sm font-bold text-gray-700 ml-1">Alamat Lengkap <span
-                        class="text-red-500">*</span></label>
-                <textarea name="alamat" id="fullAddressArea" placeholder="Jl. Nama Jalan, No. Rumah, Patokan..."
-                    class="min-h-[100px] rounded-[20px] border-gray-100 focus:ring-satset-green w-full p-5 border-2 bg-white font-medium text-gray-800 text-sm"
-                    required oninput="updateNewAddressData('address', this.value)"></textarea>
             </div>
 
             <button type="submit" id="submitNewAddress" class="hidden"></button>

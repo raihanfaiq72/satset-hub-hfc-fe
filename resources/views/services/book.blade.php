@@ -238,20 +238,24 @@
             font-weight: 700 !important;
             color: #1f2937 !important;
         }
+
         .ts-wrapper.focus .ts-control {
             border-color: #2d7a6e !important;
             box-shadow: none !important;
         }
+
         .ts-dropdown {
             border-radius: 16px !important;
             border: none !important;
             box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
             margin-top: 8px !important;
         }
+
         .ts-dropdown .active {
             background-color: #2d7a6e !important;
             color: white !important;
         }
+
         .ts-control .item {
             font-weight: 700 !important;
         }

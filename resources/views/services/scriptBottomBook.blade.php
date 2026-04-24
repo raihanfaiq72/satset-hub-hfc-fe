@@ -18,7 +18,7 @@
         idLokasi: "{{ session('new_address_id') }}" || null,
         addressType: "{{ session('new_address_id', 'default') }}",
         addressName: "{{ session('new_address_name', 'Alamat Default') }}",
-        payment_method: 'voucher',
+        payment_method: null,
         selected_voucher_id: null,
         selected_promo_id: null,
         availableVouchers: [],
@@ -256,20 +256,13 @@
         ];
     }
 
-    function selectPaymentMethod(method) {
-        orderData.payment_method = method;
-        const cards = document.querySelectorAll('.payment-method-card');
-        cards.forEach(card => {
-            card.classList.remove('border-satset-green', 'bg-satset-green/5');
-            const radio = card.querySelector('input[type="radio"]');
-            if (radio.value === method) {
-                card.classList.add('border-satset-green', 'bg-satset-green/5');
-                radio.checked = true;
-            }
-        });
-    }
+
 
     function showPromoModal() {
+        if (orderData.payment_method === 'voucher') {
+            showAlert("Promo Tidak Tersedia", "Voucher Pembayaran tidak dapat digabung dengan promo lainnya.");
+            return;
+        }
         const modal = document.getElementById('promoModal');
         const content = document.getElementById('promoModalContent');
         modal.classList.remove('hidden');
@@ -287,7 +280,7 @@
     function renderPromoList() {
         const list = document.getElementById('promoList');
         list.innerHTML = orderData.availablePromos.map(promo => `
-            <div class="border-2 border-gray-100 rounded-[28px] p-5 flex items-center justify-between cursor-pointer hover:border-satset-green transition-all" onclick="selectPromo(${promo.id})">
+            <div class="border-2 ${orderData.selected_promo_id === promo.id ? 'border-satset-green bg-satset-green/5' : 'border-gray-100'} rounded-[28px] p-5 flex items-center justify-between cursor-pointer hover:border-satset-green transition-all" onclick="selectPromo(${promo.id})">
                 <div class="flex items-center gap-4">
                     <div class="h-12 w-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -300,7 +293,7 @@
                         <p class="text-xs text-gray-500 font-medium">${promo.desc}</p>
                     </div>
                 </div>
-                <div class="w-6 h-6 border-2 border-gray-200 rounded-full flex items-center justify-center">
+                <div class="w-6 h-6 border-2 ${orderData.selected_promo_id === promo.id ? 'border-satset-green' : 'border-gray-200'} rounded-full flex items-center justify-center">
                     <div class="w-3 h-3 bg-satset-green rounded-full ${orderData.selected_promo_id === promo.id ? '' : 'hidden'}"></div>
                 </div>
             </div>
@@ -308,12 +301,162 @@
     }
 
     function selectPromo(id) {
+        if (orderData.selected_promo_id === id) {
+            unselectPromo();
+            return;
+        }
         orderData.selected_promo_id = id;
         const promo = orderData.availablePromos.find(p => p.id === id);
         document.getElementById('selectedPromoLabel').textContent = promo.name;
         document.getElementById('selectedPromoSub').textContent = promo.desc;
         document.getElementById('promoContainer').classList.add('border-satset-green', 'bg-satset-green/5');
+        document.getElementById('unselectPromoBtn').classList.remove('hidden');
         hidePromoModal();
+    }
+
+    function unselectPromo() {
+        orderData.selected_promo_id = null;
+        document.getElementById('selectedPromoLabel').textContent = "Pakai Promo";
+        document.getElementById('selectedPromoSub').textContent = "Diskon atau voucher";
+        document.getElementById('promoContainer').classList.remove('border-satset-green', 'bg-satset-green/5');
+        document.getElementById('unselectPromoBtn').classList.add('hidden');
+        hidePromoModal();
+    }
+
+    function showPaymentVoucherModal() {
+        const modal = document.getElementById('paymentVoucherModal');
+        const content = document.getElementById('paymentVoucherModalContent');
+        modal.classList.remove('hidden');
+        setTimeout(() => content.classList.remove('translate-y-full'), 10);
+        renderPaymentVoucherList();
+    }
+
+    function hidePaymentVoucherModal() {
+        const modal = document.getElementById('paymentVoucherModal');
+        const content = document.getElementById('paymentVoucherModalContent');
+        content.classList.add('translate-y-full');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function renderPaymentVoucherList() {
+        const list = document.getElementById('paymentVoucherList');
+        if (orderData.availableVouchers.length === 0) {
+            list.innerHTML =
+                '<div class="text-center py-10 text-gray-400 font-bold">Kamu tidak memiliki voucher pembayaran aktif</div>';
+            return;
+        }
+
+        list.innerHTML = orderData.availableVouchers.map(v => `
+            <div class="border-2 ${orderData.selected_voucher_id === v.id ? 'border-satset-green bg-satset-green/5' : 'border-gray-100'} rounded-[28px] p-5 flex items-center justify-between cursor-pointer hover:border-satset-green transition-all" onclick="selectPaymentVoucher(${v.id}, '${v.batch_info?.batch_name || 'Voucher HFC'}')">
+                <div class="flex items-center gap-4">
+                    <div class="h-12 w-12 bg-satset-green/10 rounded-2xl flex items-center justify-center text-satset-green">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="font-black text-gray-800">${v.batch_info?.batch_name || 'Voucher HFC'}</h5>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Kode: ${v.voucher_code}</p>
+                    </div>
+                </div>
+                <div class="w-6 h-6 border-2 ${orderData.selected_voucher_id === v.id ? 'border-satset-green' : 'border-gray-200'} rounded-full flex items-center justify-center">
+                    <div class="w-3 h-3 bg-satset-green rounded-full ${orderData.selected_voucher_id === v.id ? '' : 'hidden'}"></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function selectPaymentVoucher(id, name) {
+        if (orderData.selected_voucher_id === id) {
+            unselectPaymentVoucher();
+            return;
+        }
+        orderData.selected_voucher_id = id;
+        const nameEl = document.getElementById('selectedVoucherName');
+        nameEl.textContent = `Terpilih: ${name}`;
+        nameEl.classList.remove('hidden');
+        document.getElementById('unselectVoucherBtn').classList.remove('hidden');
+        hidePaymentVoucherModal();
+    }
+
+    function unselectPaymentVoucher() {
+        orderData.selected_voucher_id = null;
+        const nameEl = document.getElementById('selectedVoucherName');
+        if (nameEl) {
+            nameEl.textContent = "";
+            nameEl.classList.add('hidden');
+        }
+        const btnUnselect = document.getElementById('unselectVoucherBtn');
+        if (btnUnselect) btnUnselect.classList.add('hidden');
+
+        // Also unselect the payment method if we unselect the voucher
+        selectPaymentMethod(null);
+        hidePaymentVoucherModal();
+    }
+
+    function selectPaymentMethod(method) {
+        orderData.payment_method = method;
+        const cards = document.querySelectorAll('.payment-method-card');
+        const btnPick = document.getElementById('btnPickVoucher');
+        const arrow = document.getElementById('voucherArrow');
+
+        cards.forEach(card => {
+            card.classList.remove('border-satset-green', 'bg-satset-green/5');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) {
+                if (method && radio.value === method) {
+                    card.classList.add('border-satset-green', 'bg-satset-green/5');
+                    radio.checked = true;
+                } else {
+                    radio.checked = false;
+                }
+            }
+        });
+
+        // Enable/Disable "Bayar Sekarang" button
+        const footerBtn = document.querySelector('#footerAction button');
+        if (currentStep === 3 && footerBtn) {
+            footerBtn.disabled = !method;
+            footerBtn.style.opacity = method ? '1' : '0.5';
+        }
+
+        if (method === 'voucher') {
+            if (btnPick) btnPick.classList.remove('hidden');
+            if (arrow) arrow.classList.add('text-satset-green');
+
+            // Disable Promo
+            unselectPromo();
+            const promoContainer = document.getElementById('promoContainer');
+            if (promoContainer) {
+                promoContainer.classList.add('opacity-40');
+                promoContainer.classList.remove('hover:border-satset-green');
+            }
+
+            if (!orderData.selected_voucher_id && orderData.availableVouchers.length > 0) {
+                showPaymentVoucherModal();
+            }
+        } else {
+            if (btnPick) btnPick.classList.add('hidden');
+            if (arrow) arrow.classList.remove('text-satset-green');
+
+            // Clear voucher selection when switching away from 'voucher'
+            orderData.selected_voucher_id = null;
+            const nameEl = document.getElementById('selectedVoucherName');
+            if (nameEl) {
+                nameEl.textContent = "";
+                nameEl.classList.add('hidden');
+            }
+            const btnUnselect = document.getElementById('unselectVoucherBtn');
+            if (btnUnselect) btnUnselect.classList.add('hidden');
+
+            // Re-enable Promo
+            const promoContainer = document.getElementById('promoContainer');
+            if (promoContainer) {
+                promoContainer.classList.remove('opacity-40');
+                promoContainer.classList.add('hover:border-satset-green');
+            }
+        }
     }
 
     async function nextStep() {
@@ -424,14 +567,20 @@
 
             // Add voucher info if strictly paying with voucher
             if (orderData.payment_method === 'voucher') {
-                if (orderData.availableVouchers.length > 0) {
-                    payload.voucher_id = orderData.availableVouchers[0].id;
+                if (orderData.selected_voucher_id) {
+                    payload.payment_voucher_id = orderData.selected_voucher_id;
+                } else if (orderData.availableVouchers.length > 0) {
+                    payload.payment_voucher_id = orderData.availableVouchers[0].id;
                 } else {
-                    showAlert("Saldo Tidak Cukup", "Voucher Pembayaran kamu tidak mencukupi.", 'error');
+                    showAlert("Voucher Tidak Ada", "Kamu tidak memiliki voucher pembayaran aktif.", 'error');
                     btn.disabled = false;
                     btn.innerHTML = originalContent;
                     return;
                 }
+            }
+
+            if (orderData.selected_promo_id) {
+                payload.promo_id = orderData.selected_promo_id;
             }
 
             const orderResponse = await fetch("{{ route('services.createNewOrder', $kode) }}", {
@@ -524,7 +673,11 @@
 
             let btnText = "LANJUTKAN";
             if (currentStep === 21) btnText = "SIMPAN ALAMAT";
-            if (currentStep === 3) btnText = "BAYAR SEKARANG";
+            if (currentStep === 3) {
+                btnText = "BAYAR SEKARANG";
+                btn.disabled = !orderData.payment_method;
+                btn.style.opacity = orderData.payment_method ? '1' : '0.5';
+            }
             if (currentStep === 31) btnText = "KONFIRMASI PEMBAYARAN BERHASIL";
 
             btn.innerHTML =

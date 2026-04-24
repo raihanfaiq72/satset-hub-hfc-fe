@@ -172,7 +172,7 @@ class ServiceController extends Controller
             if ($request->filled('payment_voucher_id')) {
                 $this->voucherService->usePaymentVoucher([
                     'user_id' => $data['idCustomer'],
-                    'voucher_id' => $request->voucher_id,
+                    'voucher_id' => $request->payment_voucher_id,
                     'layanan_id' => $data['idLayanan'],
                 ]);
             }

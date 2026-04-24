@@ -41,12 +41,21 @@ class HistoryController extends Controller
                 }
             }
 
+            $address = data_get($order, 'inquiry.lokasi.alamat');
+            $rt = data_get($order, 'inquiry.lokasi.RT', 0);
+            $rw = data_get($order, 'inquiry.lokasi.RW', 0);
+            $province = data_get($order, 'inquiry.lokasi.province.name');
+            $regency = data_get($order, 'inquiry.lokasi.regency.name');
+            $district = data_get($order, 'inquiry.lokasi.district.name');
+            $village = data_get($order, 'inquiry.lokasi.village.name');
+            $fullAddress = "$address, RT $rt, RW $rw, $village, $district, $regency, $province";
+
             // Map API response to view format
             $mappedOrder = [
                 'id' => $order['id'],
                 'code' => data_get($order, 'inquiry.kodeInquiry', 'ORD-'.$order['id']),
-                'service' => $serviceMap[$order['idLayanan']] ?? 'Layanan #'.$order['idLayanan'],
-                'job_type' => $serviceMap[$order['idSubLayanan']] ?? 'Jenis Pekerjaan',
+                'service' => data_get($order, 'inquiry.layanan.keterangan', 'HFC'),
+                'job_type' => data_get($order, 'inquiry.subLayanan.keterangan', '3 Jam'),
                 'status' => $this->getStatusLabel(data_get($order, 'status')),
                 'date' => data_get($order, 'tglPekerjaan')
                     ? Carbon::parse($order['tglPekerjaan'])->translatedFormat('d M Y, H:i').' WIB'
@@ -57,7 +66,7 @@ class HistoryController extends Controller
                     ['label' => 'Biaya Platform', 'value' => 5000],
                 ],
                 'total_price' => (float) data_get($order, 'inquiry.finalPrice', 0) + 5000,
-                'location' => 'Jl. Telomoyo No. 6, Kelurahan Wonotingal, Kecamatan Candisari, Kota Semarang, Provinsi Jawa Tengah',
+                'location' => $fullAddress ?? 'Tidak ada alamat',
                 'timeline' => [
                     ['time' => Carbon::parse($order['tglOrder'])->format('H:i'), 'desc' => 'Pesanan Dibuat', 'done' => true],
                 ],

@@ -218,10 +218,20 @@
             });
             const data = await response.json();
 
-            // Filter only unused vouchers (used_at === null)
-            orderData.availableVouchers = (data.vouchers || []).filter(v => v.used_at === null);
+            // Process and tag vouchers
+            const now = new Date();
+            orderData.availableVouchers = (data.vouchers || []).map(v => {
+                const validUntil = v.batch_info?.valid_until ? new Date(v.batch_info.valid_until) : null;
+                v.isExpired = validUntil && validUntil < now;
+                v.isUsed = v.used_at !== null;
+                v.isValidService = v.batch_info && parseInt(v.batch_info.id_layanan) === parseInt(orderData.idLayanan);
+                v.isUsable = !v.isUsed && !v.isExpired && v.isValidService;
+                return v;
+            });
 
-            const voucherCount = orderData.availableVouchers.length;
+            const usableVouchers = orderData.availableVouchers.filter(v => v.isUsable);
+            const voucherCount = usableVouchers.length;
+            
             const balanceText = document.getElementById('voucherBalanceText');
             if (balanceText) {
                 balanceText.textContent = `Tersisa: ${voucherCount} Voucher`;
@@ -342,29 +352,54 @@
         const list = document.getElementById('paymentVoucherList');
         if (orderData.availableVouchers.length === 0) {
             list.innerHTML =
-                '<div class="text-center py-10 text-gray-400 font-bold">Kamu tidak memiliki voucher pembayaran aktif</div>';
+                '<div class="text-center py-10 text-gray-400 font-bold">Kamu tidak memiliki voucher pembayaran</div>';
             return;
         }
 
-        list.innerHTML = orderData.availableVouchers.map(v => `
-            <div class="border-2 ${orderData.selected_voucher_id === v.id ? 'border-satset-green bg-satset-green/5' : 'border-gray-100'} rounded-[28px] p-5 flex items-center justify-between cursor-pointer hover:border-satset-green transition-all" onclick="selectPaymentVoucher(${v.id}, '${v.batch_info?.batch_name || 'Voucher HFC'}')">
-                <div class="flex items-center gap-4">
-                    <div class="h-12 w-12 bg-satset-green/10 rounded-2xl flex items-center justify-center text-satset-green">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
-                            <line x1="2" y1="10" x2="22" y2="10"></line>
-                        </svg>
+        // Sort: Usable first, then Used/Expired
+        const sortedVouchers = [...orderData.availableVouchers].sort((a, b) => {
+            if (a.isUsable && !b.isUsable) return -1;
+            if (!a.isUsable && b.isUsable) return 1;
+            return 0;
+        });
+
+        list.innerHTML = sortedVouchers.map(v => {
+            const isSelected = orderData.selected_voucher_id === v.id;
+            const cardClass = v.isUsable 
+                ? (isSelected ? 'border-satset-green bg-satset-green/5' : 'border-gray-100 hover:border-satset-green')
+                : 'border-gray-50 bg-gray-50/50 opacity-60 grayscale cursor-not-allowed';
+            
+            let badge = '';
+            if (v.isUsed) badge = '<span class="px-2 py-0.5 bg-gray-200 text-gray-500 text-[8px] font-black rounded-full ml-2">TERPAKAI</span>';
+            else if (v.isExpired) badge = '<span class="px-2 py-0.5 bg-red-100 text-red-500 text-[8px] font-black rounded-full ml-2">EXPIRED</span>';
+            else if (!v.isValidService) badge = '<span class="px-2 py-0.5 bg-amber-100 text-amber-600 text-[8px] font-black rounded-full ml-2">BEDA LAYANAN</span>';
+
+            return `
+                <div class="border-2 ${cardClass} rounded-[28px] p-5 flex items-center justify-between transition-all" 
+                     ${v.isUsable ? `onclick="selectPaymentVoucher(${v.id}, '${v.batch_info?.batch_name || 'Voucher HFC'}')"` : ''}>
+                    <div class="flex items-center gap-4">
+                        <div class="h-12 w-12 ${v.isUsable ? 'bg-satset-green/10 text-satset-green' : 'bg-gray-200 text-gray-400'} rounded-2xl flex items-center justify-center">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                                <line x1="2" y1="10" x2="22" y2="10"></line>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="flex items-center">
+                                <h5 class="font-black ${v.isUsable ? 'text-gray-800' : 'text-gray-400'}">${v.batch_info?.batch_name || 'Voucher HFC'}</h5>
+                                ${badge}
+                            </div>
+                            <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Kode: ${v.voucher_code}</p>
+                        </div>
                     </div>
-                    <div>
-                        <h5 class="font-black text-gray-800">${v.batch_info?.batch_name || 'Voucher HFC'}</h5>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Kode: ${v.voucher_code}</p>
-                    </div>
+                    ${v.isUsable ? `
+                        <div class="w-6 h-6 border-2 ${isSelected ? 'border-satset-green' : 'border-gray-200'} rounded-full flex items-center justify-center">
+                            <div class="w-3 h-3 bg-satset-green rounded-full ${isSelected ? '' : 'hidden'}"></div>
+                        </div>
+                    ` : ''}
                 </div>
-                <div class="w-6 h-6 border-2 ${orderData.selected_voucher_id === v.id ? 'border-satset-green' : 'border-gray-200'} rounded-full flex items-center justify-center">
-                    <div class="w-3 h-3 bg-satset-green rounded-full ${orderData.selected_voucher_id === v.id ? '' : 'hidden'}"></div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     function selectPaymentVoucher(id, name) {
@@ -595,7 +630,15 @@
 
             const orderResult = await orderResponse.json();
             if (!orderResult.success) {
-                showAlert("Gagal", orderResult.message || "Gagal membuat pesanan.", 'error');
+                let errorTitle = "Gagal";
+                let errorMsg = orderResult.message || "Gagal membuat pesanan.";
+                
+                if (orderData.payment_method === 'voucher') {
+                    errorTitle = "Voucher Gagal";
+                    errorMsg = "Voucher tidak bisa digunakan";
+                }
+                
+                showAlert(errorTitle, errorMsg, 'error');
                 btn.disabled = false;
                 btn.innerHTML = originalContent;
                 return;

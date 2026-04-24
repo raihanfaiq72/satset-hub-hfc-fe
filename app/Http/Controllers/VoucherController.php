@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\VoucherService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class VoucherController extends Controller
@@ -23,6 +24,34 @@ class VoucherController extends Controller
             'user_id' => session('user_data')['id'],
         ];
         $userPaymentVouchers = $this->api->getUserPaymentVouchers($userPaymentVouchersData);
+
+        // Sort: Unused & Not Expired first, then Used or Expired
+        if (is_array($userPaymentVouchers)) {
+            $now = now();
+            usort($userPaymentVouchers, function ($a, $b) {
+                $aUsed = ! empty($a['used_at']);
+                $bUsed = ! empty($b['used_at']);
+
+                $aValidUntil = ! empty($a['batch_info']['valid_until']) ? Carbon::parse($a['batch_info']['valid_until']) : null;
+                $bValidUntil = ! empty($b['batch_info']['valid_until']) ? Carbon::parse($b['batch_info']['valid_until']) : null;
+
+                $aExpired = $aValidUntil?->isPast();
+                $bExpired = $bValidUntil?->isPast();
+
+                $aUsable = ! $aUsed && ! $aExpired;
+                $bUsable = ! $bUsed && ! $bExpired;
+
+                if ($aUsable && ! $bUsable) {
+                    return -1;
+                }
+                if (! $aUsable && $bUsable) {
+                    return 1;
+                }
+
+                // If both are usable or both are not, maintain relative order or sort by date
+                return 0;
+            });
+        }
 
         if ($request->wantsJson()) {
             return response()->json([
@@ -121,15 +150,15 @@ class VoucherController extends Controller
             ]);
         } catch (\Exception $e) {
             $message = $e->getMessage();
-            
+
             // If the error is specifically about WhatsApp failing, we treat it as a "soft success"
-            // because the OTP session was already created in the database and the Giver can 
+            // because the OTP session was already created in the database and the Giver can
             // still proceed if they can find the OTP (e.g. from logs).
             if (str_contains($message, 'Failed to send OTP via WhatsApp')) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Scan berhasil, namun pengiriman WhatsApp tertunda. Silakan cek OTP secara manual.',
-                    'soft_error' => $message
+                    'soft_error' => $message,
                 ]);
             }
 

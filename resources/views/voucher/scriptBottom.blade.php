@@ -37,7 +37,7 @@
         }
 
         if (availableVouchers.length === 0) {
-            alert('Stok voucher ini sedang kosong.');
+            showAlert("Stok Habis", "Maaf, stok voucher ini sedang kosong.", 'warning');
             return;
         }
 
@@ -141,11 +141,11 @@
                 paymentStep = 3;
                 renderPaymentStep();
             } else {
-                alert('Gagal membeli voucher: ' + (result.message || 'Unknown error'));
+                showAlert("Gagal", result.message || "Gagal membeli voucher.", 'error');
             }
         } catch (error) {
             console.error('Error buying voucher:', error);
-            alert('Terjadi kesalahan saat menghubungi server.');
+            showAlert("Kesalahan", "Terjadi kesalahan saat menghubungi server.", 'error');
         }
     }
 
@@ -201,7 +201,29 @@
         if (nameEl) nameEl.textContent = voucher.batch_info.voucher_name;
         if (typeEl) typeEl.textContent = voucher.batch_info.type;
         if (codeEl) codeEl.textContent = voucher.voucher_code;
-        if (statusEl) statusEl.textContent = voucher.status;
+
+        // Calculate Status
+        const now = new Date();
+        const validUntil = voucher.batch_info.valid_until ? new Date(voucher.batch_info.valid_until) : null;
+        const isExpired = validUntil && validUntil < now;
+        const isUsed = voucher.used_at !== null;
+
+        let statusText = "Tersedia";
+        let statusClass = "bg-green-100 text-satset-green";
+
+        if (isUsed) {
+            statusText = "Sudah Terpakai";
+            statusClass = "bg-gray-100 text-gray-500";
+        } else if (isExpired) {
+            statusText = "Sudah Kadaluarsa";
+            statusClass = "bg-red-100 text-red-500";
+        }
+
+        if (statusEl) {
+            statusEl.textContent = statusText;
+            statusEl.className =
+                `text-[10px] font-black px-3 py-1 rounded-full uppercase js-detail-status ${statusClass}`;
+        }
 
         if (valueEl) {
             const value = parseFloat(voucher.face_value);
@@ -224,23 +246,46 @@
 
         if (descEl) descEl.textContent = voucher.batch_info.voucher_description;
 
-        // Setup Gift Button
+        // Setup Buttons based on status
         const btnGift = page.querySelector('#btn-gift-voucher');
-        if (btnGift) {
-            btnGift.onclick = () => {
-                const voucherType = voucher.voucher_type || 'payment'; // Use server-provided type
-                window.location.href =
-                    `{{ route('voucher.giftScan') }}?voucher_id=${voucher.id}&voucher_type=${voucherType}`;
-            };
-        }
-
-        // Setup Use Button
         const btnUse = page.querySelector('#btn-use-voucher');
-        if (btnUse) {
-            btnUse.onclick = () => {
-                // Handle use voucher logic here if needed
-                alert('Fungsi gunakan voucher sedang dikembangkan.');
-            };
+
+        if (isUsed || isExpired) {
+            // Disable and style buttons for inactive status
+            const inactiveText = isUsed ? "Voucher Sudah Digunakan" : "Voucher Sudah Kadaluarsa";
+
+            if (btnUse) {
+                btnUse.textContent = inactiveText;
+                btnUse.classList.add('bg-gray-300', 'cursor-not-allowed', 'opacity-50');
+                btnUse.classList.remove('bg-satset-green', 'shadow-satset-green/20');
+                btnUse.disabled = true;
+                btnUse.onclick = null;
+            }
+
+            if (btnGift) {
+                btnGift.classList.add('hidden'); // Hide gift button if used/expired
+            }
+        } else {
+            // Reset to active state
+            if (btnUse) {
+                btnUse.textContent = "Gunakan Sekarang";
+                btnUse.classList.remove('bg-gray-300', 'cursor-not-allowed', 'opacity-50');
+                btnUse.classList.add('bg-satset-green', 'shadow-satset-green/20');
+                btnUse.disabled = false;
+                btnUse.onclick = () => {
+                    showAlert("Coming Soon", "Fungsi gunakan voucher sedang dikembangkan secara satset!",
+                    "success");
+                };
+            }
+
+            if (btnGift) {
+                btnGift.classList.remove('hidden');
+                btnGift.onclick = () => {
+                    const voucherType = voucher.voucher_type || 'payment';
+                    window.location.href =
+                        `{{ route('voucher.giftScan') }}?voucher_id=${voucher.id}&voucher_type=${voucherType}`;
+                };
+            }
         }
 
         // Transitions
@@ -250,6 +295,7 @@
 
     function closeVoucherDetail() {
         document.getElementById('voucherDetailPage').classList.add('hidden');
+        document.getElementById('voucherPage').classList.remove('hidden');
         document.body.style.overflow = 'auto';
     }
 

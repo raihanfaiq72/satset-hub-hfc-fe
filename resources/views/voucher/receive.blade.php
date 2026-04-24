@@ -113,209 +113,214 @@
             <p class="font-black uppercase italic tracking-widest text-xs">Sedang Memproses</p>
         </div>
 
-        <script src="https://unpkg.com/html5-qrcode"></script>
-        <script>
-            let html5QrCode = null;
-            let isFlashOn = false;
+        @include('services.partials.alert_modal')
+    </body>
 
-            document.addEventListener('DOMContentLoaded', function() {
-                initScanner();
-            });
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        let html5QrCode = null;
+        let isFlashOn = false;
 
-            function initScanner() {
-                html5QrCode = new Html5Qrcode("reader");
-                const config = {
-                    fps: 25,
-                    aspectRatio: window.innerWidth / window.innerHeight
-                };
+        document.addEventListener('DOMContentLoaded', function() {
+            initScanner();
+        });
 
-                html5QrCode.start({
-                        facingMode: "environment"
-                    },
-                    config,
-                    (decodedText, decodedResult) => {
-                        vibrate();
-                        sendOtpAndShowSuccess(decodedText);
-                    }
-                ).catch(err => {
-                    console.error("Camera error:", err);
-                    alert("Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.");
-                });
-            }
+        function initScanner() {
+            html5QrCode = new Html5Qrcode("reader");
+            const config = {
+                fps: 25,
+                aspectRatio: window.innerWidth / window.innerHeight
+            };
 
-            async function toggleFlash() {
-                if (!html5QrCode) return;
-                try {
-                    isFlashOn = !isFlashOn;
-                    await html5QrCode.applyVideoConstraints({
-                        advanced: [{
-                            torch: isFlashOn
-                        }]
-                    });
-                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('bg-satset-green',
-                        isFlashOn);
-                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-white', !isFlashOn);
-                    document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-black', isFlashOn);
-                } catch (err) {
-                    console.error("Flash error:", err);
-                    alert("Flash tidak didukung di perangkat/browser ini.");
-                }
-            }
-
-            async function uploadImage(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                document.getElementById('loadingOverlay').classList.remove('hidden');
-
-                try {
-                    if (html5QrCode && html5QrCode.getState() === 2) {
-                        try {
-                            await html5QrCode.stop();
-                        } catch (e) {
-                            console.warn("Camera stop failed:", e);
-                        }
-                    }
-
-                    const decodedText = await html5QrCode.scanFile(file, false);
-                    document.getElementById('loadingOverlay').classList.add('hidden');
+            html5QrCode.start({
+                    facingMode: "environment"
+                },
+                config,
+                (decodedText, decodedResult) => {
                     vibrate();
                     sendOtpAndShowSuccess(decodedText);
-                } catch (err) {
-                    document.getElementById('loadingOverlay').classList.add('hidden');
-                    console.error("Scan error:", err);
-                    let errorMsg = "Gagal memindai QR Code.";
-                    if (err.includes("not found") || err.includes("No MultiFormat Readers")) {
-                        errorMsg = "QR Code tidak terdeteksi dalam gambar.";
-                    }
-                    alert(errorMsg);
-                    if (html5QrCode && html5QrCode.getState() !== 2) {
-                        initScanner();
-                    }
-                } finally {
-                    event.target.value = '';
                 }
-            }
+            ).catch(err => {
+                console.error("Camera error:", err);
+                showAlert("Kamera Error", "Gagal mengakses kamera. Pastikan izin kamera sudah diberikan.", "error");
+            });
+        }
 
-            function sendOtpAndShowSuccess(qrCode) {
+        async function toggleFlash() {
+            if (!html5QrCode) return;
+            try {
+                isFlashOn = !isFlashOn;
+                await html5QrCode.applyVideoConstraints({
+                    advanced: [{
+                        torch: isFlashOn
+                    }]
+                });
+                document.getElementById('toggleFlash').querySelector('div').classList.toggle('bg-satset-green',
+                    isFlashOn);
+                document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-white', !isFlashOn);
+                document.getElementById('toggleFlash').querySelector('div').classList.toggle('text-black', isFlashOn);
+            } catch (err) {
+                console.error("Flash error:", err);
+                showAlert("Flash Error", "Flash tidak didukung di perangkat/browser ini.", "warning");
+            }
+        }
+
+        async function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            try {
                 if (html5QrCode && html5QrCode.getState() === 2) {
-                    html5QrCode.stop().catch(err => console.warn("Camera stop failed:", err));
+                    try {
+                        await html5QrCode.stop();
+                    } catch (e) {
+                        console.warn("Camera stop failed:", e);
+                    }
                 }
-                document.getElementById('loadingOverlay').classList.remove('hidden');
 
-                fetch("{{ route('voucher.giftSendOtp') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            qr_code: qrCode
-                        })
+                const decodedText = await html5QrCode.scanFile(file, false);
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                vibrate();
+                sendOtpAndShowSuccess(decodedText);
+            } catch (err) {
+                document.getElementById('loadingOverlay').classList.add('hidden');
+                console.error("Scan error:", err);
+                let errorMsg = "Gagal memindai QR Code.";
+                if (err.includes("not found") || err.includes("No MultiFormat Readers")) {
+                    errorMsg = "QR Code tidak terdeteksi dalam gambar.";
+                }
+                showAlert("Scan Gagal", errorMsg, "error");
+                if (html5QrCode && html5QrCode.getState() !== 2) {
+                    initScanner();
+                }
+            } finally {
+                event.target.value = '';
+            }
+        }
+
+        function sendOtpAndShowSuccess(qrCode) {
+            if (html5QrCode && html5QrCode.getState() === 2) {
+                html5QrCode.stop().catch(err => console.warn("Camera stop failed:", err));
+            }
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+
+            fetch("{{ route('voucher.giftSendOtp') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        qr_code: qrCode
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                        if (data.success) {
-                            if (data.message) {
-                                document.querySelector('#successOverlay h2').textContent = 'Scan Berhasil';
-                                document.querySelector('#successOverlay p').textContent = data.message;
-                            }
-                            document.getElementById('successOverlay').classList.remove('hidden');
-                        } else {
-                            alert(data.message || 'Gagal mengirim OTP ke pengirim. Silakan coba lagi.');
-                            initScanner();
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    if (data.success) {
+                        if (data.message) {
+                            document.querySelector('#successOverlay h2').textContent = 'Scan Berhasil';
+                            document.querySelector('#successOverlay p').textContent = data.message;
                         }
-                    })
-                    .catch(error => {
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                        console.error('Error:', error);
-                        alert('Terjadi kesalahan koneksi.');
+                        document.getElementById('successOverlay').classList.remove('hidden');
+                    } else {
+                        showAlert("Gagal", data.message || 'Gagal mengirim OTP ke pengirim. Silakan coba lagi.',
+                            "error");
                         initScanner();
-                    });
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    console.error('Error:', error);
+                    showAlert("Kesalahan", 'Terjadi kesalahan koneksi.', "error");
+                    initScanner();
+                });
+        }
+
+        function vibrate() {
+            if (window.navigator && window.navigator.vibrate) {
+                window.navigator.vibrate(100);
             }
-
-            function vibrate() {
-                if (window.navigator && window.navigator.vibrate) {
-                    window.navigator.vibrate(100);
-                }
-            }
-        </script>
-
-        <style>
-            @keyframes scan-line {
-                0% {
-                    top: 5%;
-                    opacity: 0;
-                }
-
-                10% {
-                    opacity: 1;
-                }
-
-                50% {
-                    top: 95%;
-                    opacity: 1;
-                }
-
-                90% {
-                    opacity: 1;
-                }
-
-                100% {
-                    top: 5%;
-                    opacity: 0;
-                }
-            }
-
-            .animate-scan-line {
-                animation: scan-line 3s linear infinite;
-            }
-
-            #reader__dashboard,
-            #reader__status_span,
-            #reader img,
-            #reader__scan_region>div {
-                display: none !important;
-            }
-
-            #reader {
-                border: none !important;
-            }
-
-            #reader__scan_region video {
-                object-fit: cover !important;
-                width: 100vw !important;
-                height: 100vh !important;
-            }
-
-            #reader__scan_region {
-                background: black !important;
-            }
-
-            .success-check {
-                animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-            }
-
-            @keyframes bounceIn {
-                0% {
-                    transform: scale(0);
-                    opacity: 0;
-                }
-
-                50% {
-                    transform: scale(1.1);
-                    opacity: 1;
-                }
-
-                70% {
-                    transform: scale(0.95);
-                }
-
-                100% {
-                    transform: scale(1);
-                }
-            }
-        </style>
-    </body>
+        }
+    </script>
 @endsection
+
+@push('style')
+    <style>
+        @keyframes scan-line {
+            0% {
+                top: 5%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            50% {
+                top: 95%;
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 5%;
+                opacity: 0;
+            }
+        }
+
+        .animate-scan-line {
+            animation: scan-line 3s linear infinite;
+        }
+
+        #reader__dashboard,
+        #reader__status_span,
+        #reader img,
+        #reader__scan_region>div {
+            display: none !important;
+        }
+
+        #reader {
+            border: none !important;
+        }
+
+        #reader__scan_region video {
+            object-fit: cover !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        #reader__scan_region {
+            background: black !important;
+        }
+
+        .success-check {
+            animation: bounceIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            70% {
+                transform: scale(0.95);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+@endpush

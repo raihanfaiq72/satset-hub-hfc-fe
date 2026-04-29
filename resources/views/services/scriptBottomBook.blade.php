@@ -116,7 +116,7 @@
                 btn.disabled = true;
             }
             btn.className =
-                `slot-btn py-3 px-1 rounded-xl border-2 font-black text-xs ${isSelected ? "selected shadow-md border-satset-green" : "border-gray-100 bg-white text-gray-400 shadow-sm"}`;
+                `slot-btn py-3 px-1 rounded-xl border-2 font-black text-xs ${isSelected ? "selected shadow-md border-satset-green" : "border-gray-200 bg-white text-gray-800 shadow-sm"}`;
             btn.textContent = `${time} WIB`;
             timeGrid.appendChild(btn);
         });

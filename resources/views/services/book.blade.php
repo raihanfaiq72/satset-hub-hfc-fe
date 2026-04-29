@@ -171,12 +171,12 @@
         }
 
         .slot-btn:disabled {
-            opacity: 0.5;
             cursor: not-allowed;
-            background-color: #f9fafb !important;
-            border-color: #f3f4f6 !important;
-            color: #9ca3af !important;
+            background-color: #f3f4f6 !important;
+            border-color: #e5e7eb !important;
+            color: #6b7280 !important;
             transform: none !important;
+            opacity: 1 !important;
         }
 
         .address-card {

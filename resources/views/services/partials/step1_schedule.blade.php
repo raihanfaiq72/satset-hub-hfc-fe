@@ -78,7 +78,7 @@
                 </svg>
             </button>
 
-            <div id="timeGrid" class="grid grid-cols-4 gap-2">
+            <div id="timeGrid" class="grid grid-cols-2 gap-2">
                 <!-- Time slots will be injected by JS -->
             </div>
         </div>

@@ -155,56 +155,93 @@ class ServiceController extends Controller
 
     public function createNewOrder(Request $request, $kode)
     {
-        $request->validate([
-            'idCustomer' => 'required',
-            'idLayanan' => 'required',
-            'tglPekerjaan' => 'required|date_format:Y-m-d H:i:s',
-            'idSubLayanan' => 'required',
-            'idLokasi' => 'required',
-        ]);
+        $idLayanan = $request->idLayanan;
+        $duration = $request->input('duration', 3);
+        $staffCount = $request->input('staffCount', 1);
 
-        $data = $request->all();
+        $data = [
+            'idCustomer' => $request->idCustomer,
+            'idLayanan' => $idLayanan,
+            'tglPekerjaan' => $request->tglPekerjaan,
+            'idSubLayanan' => $request->idSubLayanan,
+            'idLokasi' => $request->idLokasi,
+            'payment_method' => $request->payment_method,
+            'metodePembayaran' => $request->metodePembayaran,
+        ];
+
+        // Override idLayanan based on duration
+        if ($duration == 3) {
+            $data['idLayanan'] = 6;
+        } elseif ($duration == 6) {
+            $data['idLayanan'] = 7;
+        }
 
         try {
-            $response = $this->orderService->createNewOrder($data);
+            $responses = [];
+            $selectedVoucherIds = $request->input('payment_voucher_ids', []);
+            $selectedVoucherCodes = $request->input('payment_voucher_codes', []);
 
-            // If payment_voucher_id is provided, redeem it now
-            if ($request->filled('payment_voucher_id')) {
-                $this->voucherService->usePaymentVoucher([
-                    'user_id' => $data['idCustomer'],
-                    'voucher_id' => $request->payment_voucher_id,
-                    'layanan_id' => $data['idLayanan'],
-                ]);
+            // Fallback to single ID if provided
+            if (empty($selectedVoucherIds) && $request->filled('payment_voucher_id')) {
+                $selectedVoucherIds = [$request->payment_voucher_id];
             }
 
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => true,
-                    'data' => $response,
-                ]);
+            $vouchersPerOrder = $duration / 3;
+            $voucherIndex = 0;
+
+            for ($i = 0; $i < $staffCount; $i++) {
+                $orderPayload = $data;
+
+                // If we have a voucher for this order, attach its info
+                if (isset($selectedVoucherIds[$voucherIndex])) {
+                    $orderPayload['payment_method'] = 'Voucher';
+                    $orderPayload['metodePembayaran'] = 'Voucher Pembayaran';
+                    $orderPayload['voucher_type'] = $request->input('voucher_type', 1);
+                    if (isset($selectedVoucherCodes[$voucherIndex])) {
+                        $orderPayload['voucher_code'] = $selectedVoucherCodes[$voucherIndex];
+                    }
+                }
+
+                $response = $this->orderService->createNewOrder($orderPayload);
+                $responses[] = $response;
+
+                // Redeem vouchers for this order
+                for ($v = 0; $v < $vouchersPerOrder; $v++) {
+                    if (isset($selectedVoucherIds[$voucherIndex])) {
+                        try {
+                            $this->voucherService->usePaymentVoucher([
+                                'user_id' => $data['idCustomer'],
+                                'voucher_id' => $selectedVoucherIds[$voucherIndex],
+                                'layanan_id' => $idLayanan,
+                                'voucher_type' => $request->input('voucher_type', 1),
+                            ]);
+                            $voucherIndex++;
+                        } catch (Exception $ve) {
+                            // If one voucher fails, we might want to continue or log
+                        }
+                    }
+                }
             }
 
-            return redirect()->route('services.book', $kode)->with([
-                'success' => 'Pesanan berhasil dibuat!',
-                'p_step' => 4,
-                'order_id' => $response['id'] ?? null,
+            $finalResponse = end($responses);
+
+            return response()->json([
+                'success' => true,
+                'data' => $finalResponse,
+                'orders_created' => count($responses),
             ]);
         } catch (Exception $e) {
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                ], 500);
-            }
-
-            return back()->withErrors(['error' => 'Gagal membuat pesanan: '.$e->getMessage()])->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
     public function useVoucher(Request $request)
     {
         $request->validate([
-            'payment_voucher_id' => 'required',
+            'voucher_id' => 'required',
             'layanan_id' => 'required',
         ]);
 

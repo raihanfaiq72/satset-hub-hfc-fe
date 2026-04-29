@@ -82,6 +82,7 @@
         @include('services.partials.step4_success')
         @include('services.partials.ranger_not_available')
         @include('services.partials.alert_modal')
+        @include('services.partials.calendar_modal')
 
         @include('services.scriptBottomBook')
         @include('services.partials.scriptNewAddress')

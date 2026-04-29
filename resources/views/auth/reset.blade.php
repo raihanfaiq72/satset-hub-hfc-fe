@@ -2,17 +2,15 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-6">
-
+    <div class="bg-white min-h-[calc(100vh-64px)] flex items-center justify-center p-6">
         <div class="w-full max-w-[400px] px-10 space-y-8">
-
             <!-- Header -->
             <div class="flex flex-col items-center space-y-2">
                 <div class="mb-4 flex justify-center">
                     <img src="https://api.satset.co.id/asset/logo.png" alt="Logo SatSet" class="w-32 h-32 object-contain" />
                 </div>
                 @include('components.errorAlert')
-                <h2 class="text-2xl font-bold text-gray-800">
+                <h2 class="text-2xl font-bold text-gray-800 text-center">
                     Berhasil Memverifikasi OTP!
                 </h2>
                 <p class="text-center text-sm font-medium text-satset-green">
@@ -23,7 +21,6 @@
             <!-- Form -->
             <form class="space-y-6" action="{{ route('password.update') }}" method="POST">
                 @csrf
-
                 <div class="space-y-2">
                     <label for="password" class="font-bold text-gray-700 block">
                         Password Baru
@@ -36,7 +33,7 @@
 
                 <input type="hidden" name="noHp" id="noHp" value="{{ old('noHp', session('noHp')) }}">
 
-                <!-- Submit Button (FIXED) -->
+                <!-- Submit Button -->
                 <button type="submit"
                     class="h-12 w-full bg-satset-green hover:bg-satset-dark text-white font-bold text-lg rounded-xl transition-colors">
                     Submit
@@ -50,10 +47,8 @@
                     Kembali ke halaman Login
                 </a>
             </div>
-
         </div>
-
-    </body>
+    </div>
 @endsection
 
 @push('style')

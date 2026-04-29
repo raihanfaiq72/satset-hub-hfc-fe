@@ -35,7 +35,7 @@
                                 class="w-24 h-24 rounded-full bg-satset-green/10 flex items-center justify-center text-satset-green text-3xl mb-1 border-4 border-white shadow-sm">
                                 👤
                             </div>
-                            <h2 class="text-xl font-black text-gray-800">{{ $user['nama'] ?? 'User' }}</h2>
+                            <h2 class="text-xl font-black text-gray-800">{{ $user['namaCustomer'] ?? 'User' }}</h2>
                             <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ $user['username'] ?? 'username' }}</p>
                         </div>
 
@@ -51,7 +51,7 @@
                             @csrf
                             <div>
                                 <label class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
-                                <input type="text" name="nama" value="{{ old('nama', $user['nama'] ?? '') }}"
+                                <input type="text" name="nama" value="{{ old('nama', $user['namaCustomer'] ?? '') }}"
                                     class="w-full mt-1.5 p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-satset-green transition-all font-bold text-gray-800">
                             </div>
 

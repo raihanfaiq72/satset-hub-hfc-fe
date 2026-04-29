@@ -2,10 +2,8 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-6">
-
+    <div class="bg-white min-h-[calc(100vh-64px)] flex items-center justify-center p-6">
         <div class="w-full max-w-md px-10 space-y-6">
-
             <!-- Title -->
             <div class="text-center space-y-2">
                 <h2 class="text-2xl font-bold text-gray-800">
@@ -92,8 +90,6 @@
                     Login
                 </a>
             </p>
-
         </div>
-
-    </body>
+    </div>
 @endsection

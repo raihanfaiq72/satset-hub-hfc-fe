@@ -2,10 +2,8 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-6">
-
+    <div class="bg-white min-h-[calc(100vh-64px)] flex items-center justify-center p-6">
         <div class="w-full max-w-sm px-10 space-y-6 text-center">
-
             <!-- Title -->
             <h2 class="text-2xl font-bold text-gray-800">
                 Masukkan Kode OTP
@@ -49,10 +47,8 @@
                 Tidak menerima kode?
                 <a href="#" class="text-satset-green font-semibold">Kirim ulang</a>
             </p>
-
         </div>
-
-    </body>
+    </div>
 @endsection
 
 @push('style')

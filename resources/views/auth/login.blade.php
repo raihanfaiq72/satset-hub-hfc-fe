@@ -2,7 +2,7 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
         <div class="w-full max-w-[400px] px-8 space-y-8">
             <!-- Header -->
             <div class="flex flex-col items-center space-y-2">
@@ -10,7 +10,7 @@
                     <img src="https://api.satset.co.id/asset/logo.png" alt="Logo SatSet" class="w-32 h-32 object-contain" />
                 </div>
 
-                <h2 class="text-2xl font-bold text-gray-800">
+                <h2 class="text-2xl font-bold text-gray-800 text-center">
                     Selamat datang kembali!
                 </h2>
                 <p class="text-center text-sm font-medium text-satset-green">
@@ -77,7 +77,7 @@
                 </a>
             </div>
         </div>
-    </body>
+    </div>
 @endsection
 
 @push('style')

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Services\ProfileService;
-use Illuminate\Http\Request;
 use Exception;
+use Illuminate\Http\Request;
 
 class ProfileController extends Controller
 {
@@ -17,7 +17,18 @@ class ProfileController extends Controller
 
     public function index()
     {
+        try {
+            $response = $this->profileService->getProfile();
+            if ($response) {
+                // The API returns the customer object directly in 'data'
+                session(['user_data' => $response]);
+            }
+        } catch (Exception $e) {
+            return redirect()->route('dashboard')->withErrors(['error' => 'Gagal memuat data profil: '.$e->getMessage()]);
+        }
+
         $user = session('user_data');
+
         return view('profile.index', compact('user'));
     }
 
@@ -32,18 +43,16 @@ class ProfileController extends Controller
 
         try {
             $data = $request->only(['nama', 'username', 'email', 'noHp']);
-            $data['id'] = session('user_data')['id'];
-            
+            $data['id'] = session('user_data')['id'] ?? session('user_data.id');
+
             $response = $this->profileService->updateProfile($data);
 
             if ($response) {
-                // Update session data
-                $userData = session('user_data');
-                $userData['nama'] = $request->nama;
-                $userData['username'] = $request->username;
-                $userData['email'] = $request->email;
-                $userData['noHp'] = $request->noHp;
-                session(['user_data' => $userData]);
+                // Fetch fresh profile after update to ensure session is in sync
+                $freshData = $this->profileService->getProfile();
+                if ($freshData) {
+                    session(['user_data' => $freshData]);
+                }
 
                 return redirect()->route('profile.index')->with('success', 'Profil berhasil diperbarui.');
             }

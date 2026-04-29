@@ -49,28 +49,7 @@
                 </button>
             </div>
 
-            <div id="cancelModal" class="fixed inset-0 z-50 flex items-center justify-center p-6 hidden">
-                <div class="modal-backdrop absolute inset-0 bg-black/50" onclick="hideCancelModal()"></div>
-                <div class="relative bg-white rounded-[32px] border-none p-8 shadow-2xl max-w-md w-full">
-                    <h3 class="text-2xl font-black text-gray-800 text-center mb-4">
-                        Batalkan Pesanan?
-                    </h3>
-                    <p class="text-center text-gray-500 font-medium mb-6">
-                        Semua data yang sudah kamu isi akan terhapus. Apakah kamu yakin ingin membatalkan pesanan ini secara
-                        satset?
-                    </p>
-                    <div class="flex flex-col gap-3">
-                        <button onclick="confirmCancel()"
-                            class="bg-red-500 hover:bg-red-600 text-white font-black h-14 rounded-2xl w-full transition-colors">
-                            YA, BATALKAN
-                        </button>
-                        <button onclick="hideCancelModal()"
-                            class="border-2 border-gray-100 hover:bg-gray-50 font-bold h-14 rounded-2xl w-full transition-colors">
-                            TIDAK, LANJUTKAN
-                        </button>
-                    </div>
-                </div>
-            </div>
+
         </div>
 
         {{-- Templates --}}
@@ -80,8 +59,6 @@
         @include('services.partials.step3_payment')
         @include('services.partials.step3_waiting_payment')
         @include('services.partials.step4_success')
-        @include('services.partials.ranger_not_available')
-        @include('services.partials.alert_modal')
         @include('services.partials.calendar_modal')
 
         @include('services.scriptBottomBook')

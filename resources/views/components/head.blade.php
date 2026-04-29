@@ -49,6 +49,7 @@
     </div>
 
     @include('components.loading')
+    @include('components.globalModal')
     @yield('content')
 
     <script>

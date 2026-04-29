@@ -128,10 +128,6 @@
                 class="w-full bg-white text-satset-green py-5 rounded-[24px] font-black uppercase tracking-[0.2em] italic text-sm shadow-xl">Kembali
                 ke Voucher</a>
         </div>
-
-
-
-        @include('services.partials.alert_modal')
     </body>
 
     <script>

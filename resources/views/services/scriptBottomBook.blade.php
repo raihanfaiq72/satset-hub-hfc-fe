@@ -10,8 +10,8 @@
     const orderData = {
         date: "{{ session('p_date') }}" || todayStr,
         time: "{{ session('p_time') }}" || null,
-        duration: {{ (int)request('duration', 3) }},
-        staffCount: {{ (int)request('staffCount', 1) }},
+        duration: {{ (int) request('duration', 3) }},
+        staffCount: {{ (int) request('staffCount', 1) }},
         serviceName: "{{ $service['keterangan'] ?? 'Layanan' }}",
         price: {{ $service['harga'] ?? 150000 }},
         idLayanan: {{ $service['id_layanan'] ?? '1' }},
@@ -77,7 +77,7 @@
 
         // Render Staff Count
         template.getElementById('staffCountDisplay').textContent = orderData.staffCount;
-        
+
         const staffMinus = template.getElementById('staffMinus');
         const staffPlus = template.getElementById('staffPlus');
 
@@ -88,7 +88,7 @@
             staffMinus.classList.add('bg-white', 'border-gray-100', 'text-gray-600');
             staffMinus.classList.remove('bg-satset-green', 'text-white', 'shadow-md');
         }
-        
+
         // Ensure staffPlus is always green
         staffPlus.classList.add('bg-satset-green', 'text-white', 'shadow-md');
         staffPlus.classList.remove('bg-white', 'border-2', 'border-satset-green', 'text-satset-green');
@@ -539,7 +539,7 @@
         }
         document.getElementById('unselectVoucherBtn')?.classList.toggle('hidden', orderData.selected_voucher_ids
             .length === 0);
-            
+
         // If no vouchers selected, unselect payment method
         if (orderData.selected_voucher_ids.length === 0) {
             selectPaymentMethod(null);
@@ -742,7 +742,7 @@
             if (orderData.payment_method === 'Voucher') {
                 if (orderData.selected_voucher_ids.length > 0) {
                     payload.payment_voucher_ids = orderData.selected_voucher_ids;
-                    
+
                     // Map IDs to Codes
                     payload.payment_voucher_codes = orderData.selected_voucher_ids.map(id => {
                         const v = orderData.availableVouchers.find(av => av.id === id);
@@ -901,19 +901,28 @@
     }
 
     function showCancelModal() {
-        document.getElementById('cancelModal').classList.remove('hidden');
-    }
-
-    function hideCancelModal() {
-        document.getElementById('cancelModal').classList.add('hidden');
+        showGlobalModal({
+            title: 'Batalkan Pesanan?',
+            message: 'Yakin ingin membatalkan pesanan ini?',
+            type: 'danger',
+            actionText: 'YA, BATALKAN',
+            onAction: () => {
+                window.location.href = '{{ route('dashboard') }}';
+            }
+        });
     }
 
     function showRangerModal() {
-        document.getElementById('rangerNotAvailableModal').classList.remove('hidden');
-    }
-
-    function hideRangerModal() {
-        document.getElementById('rangerNotAvailableModal').classList.add('hidden');
+        showGlobalModal({
+            title: 'Ranger Tidak Tersedia',
+            message: 'Tidak ada ranger yang tersedia untuk jadwal yang kamu pilih. Silakan pilih tanggal atau jam lain ya!',
+            type: 'warning',
+            actionText: 'PILIH JADWAL LAIN',
+            onAction: () => {
+                currentStep = 1;
+                updateStep();
+            }
+        });
     }
 
     function confirmCancel() {

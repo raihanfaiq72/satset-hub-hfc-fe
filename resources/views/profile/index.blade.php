@@ -29,42 +29,48 @@
                 <div class="relative px-5 -mt-36">
                     <div class="bg-white rounded-[30px] p-6 shadow-xl">
 
-                        <!-- Foto -->
-                        <div class="flex flex-col items-center mb-6">
+                        <!-- Foto (Static Placeholder as requested) -->
+                        <div class="flex flex-col items-center mb-8">
                             <div
-                                class="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 text-2xl mb-3">
+                                class="w-24 h-24 rounded-full bg-satset-green/10 flex items-center justify-center text-satset-green text-3xl mb-1 border-4 border-white shadow-sm">
                                 👤
                             </div>
-                            <button class="text-sm text-satset-green font-semibold">
-                                Ubah Foto
-                            </button>
+                            <h2 class="text-xl font-black text-gray-800">{{ $user['nama'] ?? 'User' }}</h2>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">{{ $user['username'] ?? 'username' }}</p>
                         </div>
 
+                        @include('components.errorAlert')
+                        @if(session('success'))
+                            <div class="mb-4 p-4 bg-green-50 text-green-600 rounded-2xl text-sm font-bold border border-green-100 animate-fade-in">
+                                {{ session('success') }}
+                            </div>
+                        @endif
+
                         <!-- Form -->
-                        <form class="space-y-4">
-
+                        <form id="profileForm" action="{{ route('profile.update') }}" method="POST" class="space-y-5">
+                            @csrf
                             <div>
-                                <label class="text-sm font-semibold text-gray-600">Nama Lengkap</label>
-                                <input type="text" value="Budi Santoso"
-                                    class="w-full mt-1 p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-satset-green">
+                                <label class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Nama Lengkap</label>
+                                <input type="text" name="nama" value="{{ old('nama', $user['nama'] ?? '') }}"
+                                    class="w-full mt-1.5 p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-satset-green transition-all font-bold text-gray-800">
                             </div>
 
                             <div>
-                                <label class="text-sm font-semibold text-gray-600">Email</label>
-                                <input type="email" value="budi@gmail.com"
-                                    class="w-full mt-1 p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-satset-green">
+                                <label class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
+                                <input type="text" name="username" value="{{ old('username', $user['username'] ?? '') }}"
+                                    class="w-full mt-1.5 p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-satset-green transition-all font-bold text-gray-800">
                             </div>
 
                             <div>
-                                <label class="text-sm font-semibold text-gray-600">No. HP</label>
-                                <input type="text" value="08123456789"
-                                    class="w-full mt-1 p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-satset-green">
+                                <label class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Email</label>
+                                <input type="email" name="email" value="{{ old('email', $user['email'] ?? '') }}"
+                                    class="w-full mt-1.5 p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-satset-green transition-all font-bold text-gray-800">
                             </div>
 
                             <div>
-                                <label class="text-sm font-semibold text-gray-600">Bio</label>
-                                <textarea rows="3"
-                                    class="w-full mt-1 p-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-satset-green">Pengguna aktif SatSet 🚀</textarea>
+                                <label class="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">No. HP</label>
+                                <input type="text" name="noHp" value="{{ old('noHp', $user['noHp'] ?? '') }}"
+                                    class="w-full mt-1.5 p-4 rounded-2xl border border-gray-100 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-satset-green transition-all font-bold text-gray-800">
                             </div>
 
                         </form>
@@ -75,8 +81,8 @@
             </main>
 
             <!-- Footer -->
-            <div class="fixed bottom-0 left-0 right-0 bg-white p-5 border-t">
-                <button class="w-full h-14 bg-satset-green text-white font-bold rounded-2xl">
+            <div class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md p-6 border-t border-gray-100 z-20">
+                <button type="submit" form="profileForm" class="w-full h-16 bg-satset-green hover:bg-satset-dark text-white font-black text-lg rounded-3xl shadow-xl shadow-satset-green/30 uppercase tracking-widest transition-all active:scale-[0.98]">
                     Simpan Perubahan
                 </button>
             </div>

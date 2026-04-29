@@ -3,7 +3,7 @@
 @section('content')
 
     <body class="bg-white min-h-screen flex items-center justify-center p-4">
-        <div class="w-full max-w-[400px] space-y-8">
+        <div class="w-full max-w-[400px] px-8 space-y-8">
             <!-- Header -->
             <div class="flex flex-col items-center space-y-2">
                 <div class="mb-4 flex justify-center animate-fade-in">

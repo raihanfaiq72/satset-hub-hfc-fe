@@ -48,4 +48,5 @@ Route::middleware(['api.auth'])->group(function () {
     Route::get('/history', [HistoryController::class, 'index'])->name('history.index');
     Route::get('/history/detail/{id}', [HistoryController::class, 'show'])->name('history.show');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
 });

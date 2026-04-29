@@ -2,9 +2,9 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-4">
+    <body class="bg-white min-h-screen flex items-center justify-center p-6">
 
-        <div class="w-full max-w-[400px] space-y-8">
+        <div class="w-full max-w-[400px] px-10 space-y-8">
 
             <!-- Header -->
             <div class="flex flex-col items-center space-y-2">

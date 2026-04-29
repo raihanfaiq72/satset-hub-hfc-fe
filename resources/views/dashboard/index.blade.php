@@ -22,7 +22,7 @@
             <main class="flex-1 pb-24">
                 <div class="px-5 pt-6 pb-4 animate-fade-in">
                     <h2 class="text-2xl font-black text-gray-800">Halo,
-                        {{ ucwords(strtolower(session('user_data.username'))) }}</h2>
+                        {{ ucwords(strtolower(session('user_data.namaCustomer'))) }}</h2>
                     <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Siap bikin rumah bersih?</p>
                 </div>
                 @include('components.errorAlert')

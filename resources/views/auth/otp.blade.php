@@ -2,9 +2,9 @@
 
 @section('content')
 
-    <body class="bg-white min-h-screen flex items-center justify-center p-4">
+    <body class="bg-white min-h-screen flex items-center justify-center p-6">
 
-        <div class="w-full max-w-sm space-y-6 text-center">
+        <div class="w-full max-w-sm px-10 space-y-6 text-center">
 
             <!-- Title -->
             <h2 class="text-2xl font-bold text-gray-800">

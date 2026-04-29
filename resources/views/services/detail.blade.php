@@ -24,11 +24,9 @@
             <!-- Main Content -->
             <main class="flex-1 pb-32 animate-fade-in">
                 <!-- Banner Hero -->
-                <div class="relative w-full h-[400px] lg:h-[500px]">
-                    <div class="w-full h-full bg-gray-60 flex items-center justify-center p-1">
-                        <img src="{{ $service['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}"
-                            alt="Service Icon" class="h-full object-contain opacity-80">
-                    </div>
+                <div class="relative w-full h-[400px] lg:h-[500px] overflow-hidden">
+                    <img src="{{ $service['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}"
+                        alt="Service Icon" class="w-full h-full object-cover">
                 </div>
 
                 <!-- Floating Profile/Info Card -->

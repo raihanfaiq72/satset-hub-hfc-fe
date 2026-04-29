@@ -10,8 +10,8 @@
     const orderData = {
         date: "{{ session('p_date') }}" || todayStr,
         time: "{{ session('p_time') }}" || null,
-        duration: 3,
-        staffCount: 1,
+        duration: {{ (int)request('duration', 3) }},
+        staffCount: {{ (int)request('staffCount', 1) }},
         serviceName: "{{ $service['keterangan'] ?? 'Layanan' }}",
         price: {{ $service['harga'] ?? 150000 }},
         idLayanan: {{ $service['id_layanan'] ?? '1' }},

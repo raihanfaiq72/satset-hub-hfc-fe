@@ -116,15 +116,15 @@ class ServiceController extends Controller
             return redirect()->route('services.book', $kode)->with([
                 'success' => 'Lokasi berhasil ditambahkan!',
                 'new_address_id' => $response['Id'] ?? null,
-                'p_date' => $request->date,
-                'p_time' => $request->time,
+                'p_date' => $request->input('date'),
+                'p_time' => $request->input('time'),
                 'p_step' => 2,
             ]);
         } catch (Exception $e) {
             return back()->with([
                 'p_step' => 21,
-                'p_date' => $request->date,
-                'p_time' => $request->time,
+                'p_date' => $request->input('date'),
+                'p_time' => $request->input('time'),
             ])->withErrors(['error' => 'Gagal menambahkan lokasi: '.$e->getMessage()])->withInput();
         }
     }
@@ -155,25 +155,26 @@ class ServiceController extends Controller
 
     public function createNewOrder(Request $request, $kode)
     {
-        $idLayanan = $request->idLayanan;
+        $idLayanan = $request->input('idLayanan');
         $duration = $request->input('duration', 3);
         $staffCount = $request->input('staffCount', 1);
 
         $data = [
-            'idCustomer' => $request->idCustomer,
+            'idCustomer' => $request->input('idCustomer'),
             'idLayanan' => $idLayanan,
-            'tglPekerjaan' => $request->tglPekerjaan,
-            'idSubLayanan' => $request->idSubLayanan,
-            'idLokasi' => $request->idLokasi,
-            'payment_method' => $request->payment_method,
-            'metodePembayaran' => $request->metodePembayaran,
+            'tglPekerjaan' => $request->input('tglPekerjaan'),
+            'idSubLayanan' => $request->input('idSubLayanan'),
+            'idLokasi' => $request->input('idLokasi'),
+            'payment_method' => $request->input('payment_method'),
+            'metodePembayaran' => $request->input('metodePembayaran'),
         ];
 
         // Override idLayanan based on duration
+        $data['idLayanan'] = 1; // Always HFC
         if ($duration == 3) {
-            $data['idLayanan'] = 6;
+            $data['idSubLayanan'] = 6;
         } elseif ($duration == 6) {
-            $data['idLayanan'] = 7;
+            $data['idSubLayanan'] = 7;
         }
 
         try {
@@ -183,7 +184,7 @@ class ServiceController extends Controller
 
             // Fallback to single ID if provided
             if (empty($selectedVoucherIds) && $request->filled('payment_voucher_id')) {
-                $selectedVoucherIds = [$request->payment_voucher_id];
+                $selectedVoucherIds = [$request->input('payment_voucher_id')];
             }
 
             $vouchersPerOrder = $duration / 3;

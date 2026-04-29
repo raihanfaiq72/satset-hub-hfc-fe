@@ -51,12 +51,40 @@ class DashboardController extends Controller
                 // Silent fail - modal tidak akan ditampilkan jika error
             }
 
+            $history = $this->orderService->getOrderHistory(['user_id' => session('user_data')['id']]);
+
+            // Use grouping logic from HistoryController
+            $groupedHistory = HistoryController::groupOrders($history);
+            $lastActivities = $groupedHistory->take(3);
+
+            $serviceMap = [];
+            foreach ($services as $s) {
+                $serviceMap[$s['id']] = $s['keterangan'];
+                if (! empty($s['children'])) {
+                    foreach ($s['children'] as $c) {
+                        $serviceMap[$c['id']] = $c['keterangan'];
+                    }
+                }
+            }
+
+            $mappedActivities = [];
+            foreach ($lastActivities as $group) {
+                $activity = $group->first();
+                $staffCount = $group->count();
+
+                $activity['service_name'] = $serviceMap[$activity['idLayanan'] ?? 0] ?? 'Layanan SatSet';
+                $activity['sub_service_name'] = ($serviceMap[$activity['idSubLayanan'] ?? 0] ?? 'Cleaning')." ($staffCount Personel)";
+
+                $mappedActivities[] = $activity;
+            }
+
             return view('dashboard.index', [
                 'banners' => $banners,
                 'user' => session('user_data'),
                 'serviceParents' => $serviceParents,
                 'allChildren' => $allChildren,
                 'promoModal' => $promoModal,
+                'lastActivities' => $mappedActivities,
             ]);
 
         } catch (\Exception $e) {

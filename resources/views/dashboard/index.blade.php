@@ -67,7 +67,7 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         @foreach ($allChildren as $ac)
-                            <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+                            <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col cursor-pointer" onclick="window.location.href='{{ route('services.detail', $ac['kode']) }}'">
                                 <div class="w-full h-36 bg-gray-50 flex items-center justify-center">
                                     <img src="https://satsethub.satset.co.id/storage/services/hfc3.png" alt="Service Icon"
                                         class="w-full h-full object-cover opacity-80">
@@ -92,73 +92,73 @@
                     <section class="pt-2">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="font-bold text-gray-800 text-lg">Aktivitas Terakhir</h3>
-                            <button class="text-xs font-bold text-satset-green hover:underline">Lihat Semua</button>
+                            <a href="{{ route('history.index') }}" class="text-xs font-bold text-satset-green hover:underline">Lihat Semua</a>
                         </div>
                         <div class="space-y-3">
-                            <!-- Activity 1 -->
-                            <div
-                                class="activity-item bg-white rounded-xl shadow-sm border-none p-4 flex items-center gap-4">
-                                <div
-                                    class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-satset-green">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <polyline points="12 6 12 12 16 14"></polyline>
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Pembayaran Token Listrik</p>
-                                    <p class="text-xs text-gray-500">04 April 2026 • 18:30</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-black text-red-500">- Rp20.000</p>
-                                </div>
-                            </div>
+                            @if(!empty($lastActivities))
+                                @foreach($lastActivities as $activity)
+                                    @php
+                                        $status = (int)$activity['status'];
+                                        $statusLabel = match($status) {
+                                            64 => 'Selesai',
+                                            63 => 'Pengerjaan',
+                                            62 => 'Dijadwalkan',
+                                            default => 'Diproses'
+                                        };
+                                        $statusClass = match($status) {
+                                            64 => 'bg-green-100 text-green-600',
+                                            63 => 'bg-blue-100 text-blue-600',
+                                            62 => 'bg-amber-100 text-amber-600',
+                                            default => 'bg-gray-100 text-gray-500'
+                                        };
+                                    @endphp
+                                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 cursor-pointer hover:shadow-md transition-all active:scale-[0.98]" 
+                                         onclick="window.location.href='{{ route('history.show', $activity['id']) }}'">
+                                        
+                                        <div class="h-14 w-14 rounded-2xl bg-satset-green/10 flex items-center justify-center text-satset-green shrink-0">
+                                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                                <polyline points="14 2 14 8 20 8"></polyline>
+                                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                                                <polyline points="10 9 9 9 8 9"></polyline>
+                                            </svg>
+                                        </div>
 
-                            <!-- Activity 2 -->
-                            <div
-                                class="activity-item bg-white rounded-xl shadow-sm border-none p-4 flex items-center gap-4">
-                                <div
-                                    class="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center text-satset-green">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                                        <polyline points="16 6 12 2 8 6"></polyline>
-                                        <line x1="12" y1="2" x2="12" y2="15"></line>
-                                    </svg>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center justify-between mb-1">
+                                                <h4 class="font-black text-gray-900 truncate">{{ $activity['service_name'] ?? 'Layanan' }}</h4>
+                                                <span class="text-[10px] font-black px-2 py-0.5 rounded-full {{ $statusClass }} uppercase tracking-wider">
+                                                    {{ $statusLabel }}
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-gray-500 font-bold mb-2">{{ $activity['sub_service_name'] ?? 'General Cleaning' }}</p>
+                                            <div class="flex items-center justify-between">
+                                                <p class="text-[11px] text-gray-400 font-medium">
+                                                    {{ \Carbon\Carbon::parse($activity['tglPekerjaan'] ?? $activity['tglOrder'])->translatedFormat('d F Y • H:i') }}
+                                                </p>
+                                                <p class="text-sm font-black text-satset-green">
+                                                    Rp{{ number_format((float)data_get($activity, 'inquiry.finalPrice', 0) + 5000, 0, ',', '.') }}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            @else
+                                <div class="text-center py-10 bg-white rounded-2xl border-2 border-dashed border-gray-100">
+                                    <div class="h-12 w-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3 text-gray-300">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                            <polyline points="14 2 14 8 20 8"></polyline>
+                                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                                            <polyline points="10 9 9 9 8 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <p class="text-gray-400 font-bold text-sm">Belum ada aktivitas</p>
                                 </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Top Up Saldo E-Wallet</p>
-                                    <p class="text-xs text-gray-500">04 April 2026 • 15:20</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-black text-green-500">+ Rp100.000</p>
-                                </div>
-                            </div>
-
-                            <!-- Activity 3 -->
-                            <div
-                                class="activity-item bg-white rounded-xl shadow-sm border-none p-4 flex items-center gap-4">
-                                <div
-                                    class="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-satset-green">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
-                                        <rect x="1" y="4" width="22" height="16" rx="2" ry="2">
-                                        </rect>
-                                        <line x1="1" y1="10" x2="23" y2="10"></line>
-                                    </svg>
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-sm font-bold text-gray-800">Isi Pulsa Telkomsel</p>
-                                    <p class="text-xs text-gray-500">03 April 2026 • 10:15</p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-black text-red-500">- Rp50.000</p>
-                                </div>
-                            </div>
+                            @endif
+                        </div>
                         </div>
                     </section>
                 </div>
@@ -230,12 +230,14 @@
         <script>
             function openPromoModal() {
                 const modal = document.getElementById('promoModal');
+                if (!modal) return;
                 modal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
             }
 
             function closePromoModal() {
                 const modal = document.getElementById('promoModal');
+                if (!modal) return;
                 const video = modal.querySelector('video');
                 if(video) {
                     video.pause();
@@ -243,10 +245,16 @@
                 }
                 modal.classList.add('hidden');
                 document.body.style.overflow = '';
+                
+                // Set flag to not show again
+                localStorage.setItem('promo_modal_dismissed', 'true');
             }
 
             // Auto open on page load
             document.addEventListener('DOMContentLoaded', function() {
+                const dismissed = localStorage.getItem('promo_modal_dismissed');
+                if (dismissed) return;
+
                 setTimeout(function() {
                     openPromoModal();
 

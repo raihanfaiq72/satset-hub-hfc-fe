@@ -47,7 +47,8 @@
                             <span
                                 class="text-[7px] font-black uppercase tracking-widest text-gray-400 block mb-1">#{{ $order['code'] }}</span>
                             <h3 class="text-xl font-black text-gray-800">{{ $order['service'] }}</h3>
-                            <p class="text-xs text-gray-500 font-medium">{{ $order['job_type'] ?? 'Layanan SatSet' }}</p>
+                            <p class="text-xs text-gray-500 font-medium">{{ $order['job_type'] ?? 'Layanan SatSet' }} •
+                                {{ $order['staff_count'] ?? 1 }} Personel</p>
                         </div>
                         <div class="h-12 w-12 bg-gray-50 rounded-2xl flex items-center justify-center text-satset-green">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -179,10 +180,12 @@
                     class="flex-1 h-14 bg-gray-100 text-gray-800 font-black uppercase tracking-widest text-[10px] rounded-2xl active:scale-95 transition-transform">
                     Butuh Bantuan?
                 </button>
-                <button
-                    class="flex-1 h-14 bg-satset-green text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-lg shadow-satset-green/30 active:scale-95 transition-transform">
-                    Pesan Lagi
-                </button>
+                <a href="{{ route('services.book', $order['service_code']) }}?duration={{ $order['duration'] }}&staffCount={{ $order['staff_count'] }}" class="flex-1">
+                    <button
+                        class="w-full h-14 bg-satset-green text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-lg shadow-satset-green/30 active:scale-95 transition-transform">
+                        Pesan Lagi
+                    </button>
+                </a>
             </div>
 
         </div>

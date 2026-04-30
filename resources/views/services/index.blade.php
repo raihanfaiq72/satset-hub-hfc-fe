@@ -19,32 +19,29 @@
                 </div>
             </header>
 
-            <main class="flex-1 pb-24 mt-2">
-                @foreach ($serviceParents as $parent)
-                    <div class="px-5 pb-6">
-                        <h3 class="font-bold text-gray-800 text-lg mb-2">{{ $parent['keterangan'] }}</h3>
-                        <div class="grid grid-cols-2 gap-4">
-                            @foreach ($parent['children'] as $child)
-                                <div class="service-card bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
-                                    <div class="w-full h-36 bg-gray-50 flex items-center justify-center">
-                                        <img src="{{ $child['thumbnail'] ?? 'https://api.satset.co.id/asset/logo.png' }}"
-                                            alt="Service Icon" class="w-full h-full object-cover opacity-80">
-                                    </div>
-                                    <div class="p-4 flex flex-col gap-2 flex-1 justify-between">
-                                        <div>
-                                            <h4 class="font-bold text-gray-800">{{ $child['kode'] }}</h4>
-                                            <p class="text-xs text-gray-500 mt-1">{{ $child['keterangan'] }}</p>
-                                        </div>
-                                        <a href="{{ route('services.detail', ['kode' => $child['kode']]) }}"
-                                            class="mt-2 block w-full rounded-full bg-satset-green px-3 py-2 text-white font-semibold text-center hover:bg-satset-dark transition z-10">
-                                            Pesan
-                                        </a>
-                                    </div>
+            <main class="flex-1 pb-24 mt-6">
+                <div class="px-5 pb-6">
+                    <div class="grid grid-cols-2 gap-4">
+                        @foreach ($serviceParents as $parent)
+                            <div class="service-card bg-white rounded-xl shadow-[0_4px_20px_rgb(0,0,0,0.05)] border border-gray-100 overflow-hidden flex flex-col">
+                                <div class="w-full h-32 bg-gray-50 flex items-center justify-center relative overflow-hidden group">
+                                    <img src="{{ $parent['thumbnail'] ?? 'https://satsethub.satset.co.id/storage/services/hfc3.png' }}"
+                                        alt="{{ $parent['keterangan'] }}" class="w-full h-full object-cover opacity-90 group-hover:scale-110 transition-transform duration-500">
                                 </div>
-                            @endforeach
-                        </div>
+                                <div class="p-4 flex flex-col gap-3 flex-1 justify-between">
+                                    <div>
+                                        <h4 class="font-black text-gray-800 text-sm truncate">{{ $parent['kode'] }}</h4>
+                                        <p class="text-[11px] text-gray-500 font-medium mt-1 leading-relaxed line-clamp-2">{{ $parent['keterangan'] }}</p>
+                                    </div>
+                                    <a href="{{ route('services.detail', ['kode' => $parent['kode']]) }}"
+                                        class="mt-1 block w-full rounded-full bg-satset-green px-3 py-2 text-white font-bold text-xs text-center shadow-md shadow-satset-green/30 hover:bg-satset-dark transition-colors duration-300 z-10">
+                                        Pesan
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
             </main>
 
             <!-- Bottom Navigation -->

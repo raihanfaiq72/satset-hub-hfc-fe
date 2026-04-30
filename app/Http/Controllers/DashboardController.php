@@ -34,12 +34,8 @@ class DashboardController extends Controller
 
             $allChildren = [];
             foreach ($services as $service) {
-                if (! empty($service['children'])) {
-                    foreach ($service['children'] as $child) {
-                        if ($child['release_status'] === 'published') {
-                            $allChildren[] = $child;
-                        }
-                    }
+                if ($service['idParent'] == 0 && $service['release_status'] === 'published') {
+                    $allChildren[] = $service;
                 }
             }
 

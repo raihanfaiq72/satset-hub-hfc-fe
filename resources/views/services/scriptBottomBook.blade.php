@@ -327,12 +327,24 @@
                 balanceText.textContent = `Tersisa: ${voucherCount} Voucher`;
                 balanceText.classList.remove('loading-text');
 
+                const voucherCard = balanceText.closest('.payment-method-card');
                 if (voucherCount <= 0) {
                     balanceText.classList.remove('text-satset-green');
                     balanceText.classList.add('text-red-500');
+                    if (voucherCard) {
+                        voucherCard.classList.add('opacity-50', 'pointer-events-none', 'grayscale');
+                        voucherCard.removeAttribute('onclick');
+                    }
+                    if (orderData.payment_method === 'Voucher') {
+                        selectPaymentMethod(null);
+                    }
                 } else {
                     balanceText.classList.add('text-satset-green');
                     balanceText.classList.remove('text-red-500');
+                    if (voucherCard) {
+                        voucherCard.classList.remove('opacity-50', 'pointer-events-none', 'grayscale');
+                        voucherCard.setAttribute('onclick', "selectPaymentMethod('Voucher')");
+                    }
                 }
             }
         } catch (error) {

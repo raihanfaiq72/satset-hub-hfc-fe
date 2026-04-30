@@ -21,25 +21,31 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $data = [
-            'username' => $request->username,
-            'password' => $request->password,
-        ];
+        try {
+            $data = [
+                'username' => $request->username,
+                'password' => $request->password,
+            ];
 
-        $response = $this->authService->login($data);
+            $response = $this->authService->login($data);
 
-        if ($response) {
-            session([
-                'api_token' => $response['token'],
-                'user_data' => $response['user'],
-            ]);
+            if ($response) {
+                session([
+                    'api_token' => $response['token'],
+                    'user_data' => $response['user'],
+                ]);
 
-            return redirect()->intended('/dashboard');
+                return redirect()->intended('/dashboard');
+            }
+
+            return back()->withErrors([
+                'username' => 'Username atau password salah.',
+            ])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'username' => $e->getMessage(),
+            ])->withInput();
         }
-
-        return back()->withErrors([
-            'username' => 'Invalid username or password.',
-        ])->withInput();
     }
 
     public function logout()
@@ -56,21 +62,27 @@ class AuthController extends Controller
 
     public function forgotPasswordSendOTP(Request $request)
     {
-        $data = [
-            'noHp' => $request->noHp,
-        ];
+        try {
+            $data = [
+                'noHp' => $request->noHp,
+            ];
 
-        $response = $this->authService->sendOtpForgotPassword($data);
+            $response = $this->authService->sendOtpForgotPassword($data);
 
-        if ($response) {
-            session(['noHp' => $request->noHp]);
+            if ($response) {
+                session(['noHp' => $request->noHp]);
 
-            return redirect()->route('otp')->with('success', 'OTP sent to your phone number.');
+                return redirect()->route('otp')->with('success', 'OTP telah dikirim ke nomor telepon Anda.');
+            }
+
+            return back()->withErrors([
+                'noHp' => 'Nomor telepon tidak terdaftar.',
+            ])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'noHp' => $e->getMessage(),
+            ])->withInput();
         }
-
-        return back()->withErrors([
-            'noHp' => 'Phone number not found.',
-        ])->withInput();
     }
 
     public function otp()
@@ -80,20 +92,26 @@ class AuthController extends Controller
 
     public function verifyOTP(Request $request)
     {
-        $data = [
-            'noHp' => $request->noHp,
-            'otp' => $request->otp,
-        ];
+        try {
+            $data = [
+                'noHp' => $request->noHp,
+                'otp' => $request->otp,
+            ];
 
-        $response = $this->authService->verifyOtp($data);
+            $response = $this->authService->verifyOtp($data);
 
-        if ($response) {
-            return redirect()->route('password.reset')->with('success', 'OTP verified. You can now reset your password.');
+            if ($response) {
+                return redirect()->route('password.reset')->with('success', 'OTP berhasil diverifikasi. Silakan atur ulang kata sandi Anda.');
+            }
+
+            return back()->withErrors([
+                'otp' => 'Kode OTP tidak valid.',
+            ])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'otp' => $e->getMessage(),
+            ])->withInput();
         }
-
-        return back()->withErrors([
-            'otp' => 'Invalid OTP.',
-        ])->withInput();
     }
 
     public function resetPassword()
@@ -103,21 +121,27 @@ class AuthController extends Controller
 
     public function updatePassword(Request $request)
     {
-        $data = [
-            'noHp' => $request->noHp,
-            'password' => $request->password,
-            'password_confirmation' => $request->password_confirmation,
-        ];
+        try {
+            $data = [
+                'noHp' => $request->noHp,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+            ];
 
-        $response = $this->authService->resetPassword($data);
+            $response = $this->authService->resetPassword($data);
 
-        if ($response) {
-            return redirect()->route('login')->with('success', 'Password reset successful. Please login with your new password.');
+            if ($response) {
+                return redirect()->route('login')->with('success', 'Kata sandi berhasil diperbarui. Silakan login dengan kata sandi baru Anda.');
+            }
+
+            return back()->withErrors([
+                'password' => 'Gagal memperbarui kata sandi. Silakan coba lagi.',
+            ])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'password' => $e->getMessage(),
+            ])->withInput();
         }
-
-        return back()->withErrors([
-            'password' => 'Failed to reset password. Please try again.',
-        ])->withInput();
     }
 
     public function register()
@@ -127,21 +151,27 @@ class AuthController extends Controller
 
     public function registerUser(Request $request)
     {
-        $data = [
-            'username' => $request->username,
-            'noHp' => $request->noHp,
-            'password' => $request->password,
-            'password_confirmation' => $request->password_confirmation,
-        ];
+        try {
+            $data = [
+                'username' => $request->username,
+                'noHp' => $request->noHp,
+                'password' => $request->password,
+                'password_confirmation' => $request->password_confirmation,
+            ];
 
-        $response = $this->authService->register($data);
+            $response = $this->authService->register($data);
 
-        if ($response) {
-            return redirect()->route('login')->with('success', 'Registration successful. Please login with your new account.');
+            if ($response) {
+                return redirect()->route('login')->with('success', 'Pendaftaran berhasil. Silakan login dengan akun baru Anda.');
+            }
+
+            return back()->withErrors([
+                'username' => 'Gagal mendaftar. Silakan coba lagi.',
+            ])->withInput();
+        } catch (\Exception $e) {
+            return back()->withErrors([
+                'username' => $e->getMessage(),
+            ])->withInput();
         }
-
-        return back()->withErrors([
-            'email' => 'Failed to register. Please try again.',
-        ])->withInput();
     }
 }

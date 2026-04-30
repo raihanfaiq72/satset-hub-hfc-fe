@@ -84,7 +84,7 @@ class HistoryController extends Controller
 
             return view('history.detail', ['order' => $mappedOrder]);
         } catch (Exception $e) {
-            return redirect()->route('history.index')->withErrors(['error' => 'Gagal mengambil detail pesanan: '.$e->getMessage()]);
+            return redirect()->route('history.index')->withErrors(['error' => $e->getMessage()]);
         }
     }
 

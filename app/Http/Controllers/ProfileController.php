@@ -24,7 +24,7 @@ class ProfileController extends Controller
                 session(['user_data' => $response]);
             }
         } catch (Exception $e) {
-            return redirect()->route('dashboard')->withErrors(['error' => 'Gagal memuat data profil: '.$e->getMessage()]);
+            return redirect()->route('dashboard')->withErrors(['error' => $e->getMessage()]);
         }
 
         $user = session('user_data');

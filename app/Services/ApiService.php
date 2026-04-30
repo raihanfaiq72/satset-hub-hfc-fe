@@ -36,15 +36,36 @@ abstract class ApiService
                 ->$method($url, $data);
         }
 
-        if ($response->status() == 401) {
-            session()->forget(['api_token', 'user_data']);
-            throw new \Exception('Unauthorized');
-        }
-
         if (! $response->successful()) {
             $status = $response->status();
-            $body = $response->body();
-            throw new \Exception("API request failed: HTTP $status - $body");
+            $json = $response->json();
+
+            $message = $json['message'] ?? $json['error'] ?? null;
+
+            // Handle validation errors (422)
+            if ($status === 422 && isset($json['errors'])) {
+                $errors = [];
+                foreach ($json['errors'] as $field => $messages) {
+                    foreach ($messages as $msg) {
+                        $errors[] = $msg;
+                    }
+                }
+                $message = implode(' ', $errors);
+            }
+
+            // Specific handling for 401 (Unauthorized)
+            if ($status == 401) {
+                session()->forget(['api_token', 'user_data']);
+                if (! $message) {
+                    $message = 'Sesi Anda telah berakhir atau kredensial tidak valid. Silakan login kembali.';
+                }
+            }
+
+            if (! $message) {
+                $message = "Terjadi kesalahan pada server (HTTP $status).";
+            }
+
+            throw new \Exception($message);
         }
 
         return $response->json()['data'] ?? [];
